@@ -1,5 +1,3 @@
-require 'thread'
-
 # Holds all plowshare API related classes.
 module Plowshare
 end

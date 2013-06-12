@@ -1,3 +1,6 @@
+require 'open4'
+require 'thread'
+
 # Class for interfacing with plowshare's executables.
 class Plowshare::API
 
@@ -79,6 +82,12 @@ class Plowshare::API
   # Executes the given command and returns the result.
   # If the command exits with a non-zero exit code, returns nil.
   def call(command)
+    output = nil
+    status = Open4::popen4 do |pid, stdin, stdout, stderr|
+      output = stdout.read
+    end
+    return nil unless status.to_i == 0
+    return output
   end
 
 end
