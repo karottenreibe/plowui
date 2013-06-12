@@ -8,7 +8,7 @@ class LinksTable
   attr_reader :entries
 
   def initialize
-    @widget = Gtk::Table.new(0, 3)
+    @widget = Gtk::Table.new(1, 3)
     @widget.column_spacings = 10
     @widget.row_spacings = 5
     @entries = []
@@ -19,6 +19,7 @@ class LinksTable
     @entries << entry
     self.resize_table()
     self.attach_entry(entry, @entries.size - 1)
+    @widget.show_all
   end
 
   # Removes an entry from the table.
@@ -31,11 +32,13 @@ class LinksTable
     @entries.each_with_index do |entry, row|
       self.attach_entry(entry, row)
     end
+    @widget.show_all
   end
 
   # Resizes the table to match the number of entries.
   def resize_table()
-    @widget.resize(@entries.size - 1, 3)
+    size = [@entries.size - 1, 1].max
+    @widget.resize(size, 3)
   end
 
   # Adds the given entry's widgets into the given table row.

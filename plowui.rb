@@ -4,6 +4,13 @@ require 'bundler'
 
 Bundler.require
 
+require 'logger'
+$log = Logger.new(STDOUT)
+$log.level = Logger::DEBUG
+$log.formatter = proc do |severity, time, program_name, message|
+  "#{severity}\t#{message}\n"
+end
+
 require './status.rb'
 require './clipboard.rb'
 require './link_parser.rb'
@@ -39,6 +46,7 @@ class MainWindow < Gtk::Window
     links = @parser.parse(value)
     return if links.empty?
     @filter.filter(links) do |link|
+      $log.debug("adding #{link}")
       entry = LinksTable::Entry.new(link)
       @table.add(entry)
     end
