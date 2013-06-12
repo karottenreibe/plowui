@@ -83,8 +83,11 @@ class Plowshare::API
   # If the command exits with a non-zero exit code, returns nil.
   def call(command)
     output = nil
-    status = Open4::popen4 do |pid, stdin, stdout, stderr|
+    $log.debug("exec #{command}")
+    status = Open4::popen4(command) do |pid, stdin, stdout, stderr|
       output = stdout.read
+      errors = stderr.read
+      $log.debug("stderr = #{errors}") if errors
     end
     return nil unless status.to_i == 0
     return output
