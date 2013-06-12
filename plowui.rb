@@ -57,9 +57,9 @@ class MainWindow < Gtk::Window
 
     @filter.filter(links) do |link|
       $log.debug("adding #{link}")
-      @api.resolve(link)
       entry = LinksTable::Entry.new(link)
-      @table.add(entry)
+      id = @table.add(entry)
+      @api.resolve(link, id)
     end
   end
 
@@ -67,7 +67,7 @@ class MainWindow < Gtk::Window
   def check_resolvers
     done_ids = @api.done_ids
     done_ids.each do |id|
-      entry = @table.entries[id]
+      entry = @table.entry(id)
       @table.remove(entry)
     end
 

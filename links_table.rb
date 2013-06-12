@@ -4,9 +4,6 @@ class LinksTable
   # The Gtk widget of the table.
   attr_reader :widget
 
-  # The entries of the table.
-  attr_reader :entries
-
   COLUMNS = 4
 
   def initialize
@@ -14,14 +11,27 @@ class LinksTable
     @widget.column_spacings = 10
     @widget.row_spacings = 5
     @entries = []
+    @entries_by_id = {}
+    @next_id = 0
   end
 
   # Adds an entry to the table.
+  # Returns the id of the entry.
   def add(entry)
     @entries << entry
     self.resize_table()
     self.attach_entry(entry, @entries.size - 1)
     @widget.show_all
+
+    id = @next_id
+    @next_id += 1
+    @entries_by_id[id] = entry
+    return id
+  end
+
+  # Returns the entry for the given ID.
+  def entry(id)
+    return @entries_by_id[id]
   end
 
   # Removes an entry from the table.
@@ -29,8 +39,10 @@ class LinksTable
     @entries.map(&:widgets).flatten.each do |widget|
       @widget.remove(widget)
     end
-    @entries.remove(entry)
+
+    @entries.delete(entry)
     self.resize_table()
+
     @entries.each_with_index do |entry, row|
       self.attach_entry(entry, row)
     end
@@ -92,15 +104,15 @@ class LinksTable
     end
 
     # Sets the size.
-    def size=(url)
-      @url = url
-      @url_label.text = @url.to_s
+    def size=(size)
+      @size = size
+      @size_label.text = @size.to_s
     end
 
     # Sets the name.
-    def name=(url)
-      @url = url
-      @url_label.text = @url.to_s
+    def name=(name)
+      @name = name
+      @name_label.text = @name.to_s
     end
 
     # Sets the URL.

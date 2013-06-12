@@ -1,5 +1,5 @@
 # Class for interfacing with plowshare's executables.
-class PlowShare::API
+class Plowshare::API
 
   def initialize
     @resolvers = []
@@ -9,7 +9,7 @@ class PlowShare::API
 
   # Starts a thread that resolves the given link.
   def resolve(link, id)
-    resolver = Resolver.new(link, id, self)
+    resolver = Plowshare::Resolver.new(link, id, self)
     @resolvers << resolver
   end
 
@@ -42,12 +42,20 @@ class PlowShare::API
   # If links were found, returns them as an array.
   # Otherwise returns nil.
   def list(link)
+    return nil
   end
 
   # Call plowprobe to get info about a link.
   # Returns the gathered info.
   # If an error occurred, returns nil.
   def probe(link)
+    sleep(2)
+    return {
+      :name => "name",
+      :status => :online,
+      :size => 123444,
+      :hoster => "hoster"
+    }
   end
 
   # Call plowdown to obtain a download link.

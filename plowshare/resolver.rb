@@ -22,13 +22,18 @@ class Plowshare::Resolver
     return !@thread.status
   end
 
+  def debug(message)
+    $log.debug "resolving #{@id}: #{message}"
+  end
+
   # Run from a thread. Tries to resolve the link.
   def resolve(link)
-    $log.debug "starting to resolve #{link}"
+    self.debug "starting to resolve #{link}"
     links = @api.list(link)
 
     if links
       # if it was a folder or crypter, resolve all found links
+      self.debug "folder contained #{links}. recursing"
       links.each do |link|
         self.resolve(link)
       end
@@ -36,7 +41,8 @@ class Plowshare::Resolver
       info = @api.probe(link)
       self.push_error_result(link) unless info
 
-      resolvable = Resolvable.new(link, info)
+      self.debug "found #{info}"
+      resolvable = Plowshare::Resolvable.new(link, info)
       @api.add_result(resolvable)
     end
   end
@@ -49,7 +55,7 @@ class Plowshare::Resolver
       :hoster => :unknown,
       :status => :error
     }
-    resolvable = Resolvable.new(@link, info)
+    resolvable = Plowshare::Resolvable.new(@link, info)
     @api.add_result(resolvable)
   end
 
