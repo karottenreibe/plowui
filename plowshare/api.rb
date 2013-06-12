@@ -42,19 +42,27 @@ class Plowshare::API
   # If links were found, returns them as an array.
   # Otherwise returns nil.
   def list(link)
-    return nil
+    # TODO
   end
 
   # Call plowprobe to get info about a link.
   # Returns the gathered info.
   # If an error occurred, returns nil.
   def probe(link)
-    sleep(2)
+    output = call("plowprobe #{link} --printf '%c%n%m%n%f%n%s'")
+    return nil unless output
+
+    lines = output.split(/\n/)
+    status = Status.from_plowshare(lines[0].to_i)
+    hoster = lines[1]
+    name = lines[2]
+    size = lines[3].to_i
+
     return {
-      :name => "name",
-      :status => :online,
-      :size => 123444,
-      :hoster => "hoster"
+      :size => size,
+      :status => status,
+      :hoster => hoster,
+      :name => name,
     }
   end
 
@@ -63,8 +71,14 @@ class Plowshare::API
   # If an error occurred, returns nil.
   #
   # If entering a captcha is required, calls the
-  # callback.
-  def down(link, captcha_callback)
+  # given block
+  def down(link)
+    # TODO
+  end
+
+  # Executes the given command and returns the result.
+  # If the command exits with a non-zero exit code, returns nil.
+  def call(command)
   end
 
 end

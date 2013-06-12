@@ -22,6 +22,7 @@ class Plowshare::Resolver
     return !@thread.status
   end
 
+  # Sends a debug message to the logger
   def debug(message)
     $log.debug "resolving #{@id}: #{message}"
   end
@@ -33,7 +34,7 @@ class Plowshare::Resolver
 
     if links
       # if it was a folder or crypter, resolve all found links
-      self.debug "folder contained #{links}. recursing"
+      self.debug "folder/crypter contained #{links}. recursing"
       links.each do |link|
         self.resolve(link)
       end
