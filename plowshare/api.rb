@@ -20,10 +20,18 @@ class PlowShare::API
     end
   end
 
+  # Returns all IDs that have been resolved.
+  def done_ids
+    done_resolvers = @resolvers.find_all(&:done?)
+    @resolvers.reject! do |resolver|
+      done_resolvers.include?(resolver)
+    end
+    return done_resolvers.map(&:id)
+  end
+
   # Returns all done resolvables.
-  def get_done
+  def results
     @mutex.synchronize do
-      @resolvers.reject!(&:done?)
       resolvables = @resolvables
       @resolvables = []
       return resolvables

@@ -7,8 +7,10 @@ class LinksTable
   # The entries of the table.
   attr_reader :entries
 
+  COLUMNS = 4
+
   def initialize
-    @widget = Gtk::Table.new(1, 3)
+    @widget = Gtk::Table.new(1, COLUMNS)
     @widget.column_spacings = 10
     @widget.row_spacings = 5
     @entries = []
@@ -38,7 +40,7 @@ class LinksTable
   # Resizes the table to match the number of entries.
   def resize_table()
     size = [@entries.size - 1, 1].max
-    @widget.resize(size, 3)
+    @widget.resize(size, COLUMNS)
   end
 
   # Adds the given entry's widgets into the given table row.
@@ -62,6 +64,12 @@ class LinksTable
     # The name of the hoster.
     attr_reader :hoster
 
+    # The file name.
+    attr_reader :name
+
+    # The file size.
+    attr_reader :size
+
     # The status of the link.
     attr_reader :status
 
@@ -71,24 +79,28 @@ class LinksTable
     def initialize(url)
       @url = url
       @hoster = :unknown
+      @name = :unknown
+      @size = 0
       @status = :unknown
 
       @hoster_label = Gtk::Label.new(@hoster.to_s)
       @url_label = Gtk::Label.new(@url.to_s)
       @status_label = Gtk::Label.new(@status.to_s)
-      @widgets = [@hoster_label, @url_label, @status_label]
-
-      @selected = false
+      @name_label = Gtk::Label.new(@status.to_s)
+      @size_label = Gtk::Label.new(@status.to_s)
+      @widgets = [@hoster_label, @url_label, @name_label, @size_label, @status_label]
     end
 
-    # Returns true if the entry is selected.
-    def selected?
-      return @selected
+    # Sets the size.
+    def size=(url)
+      @url = url
+      @url_label.text = @url.to_s
     end
 
-    # Determines whether the item should be selected or not.
-    def selected=(selected)
-      @selected = selected
+    # Sets the name.
+    def name=(url)
+      @url = url
+      @url_label.text = @url.to_s
     end
 
     # Sets the URL.
