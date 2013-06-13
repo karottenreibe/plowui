@@ -31,7 +31,7 @@ class Plowshare::Resolver
   def resolve(link)
     self.debug "starting to resolve #{link}"
     links, status = @api.list(link)
-    self.push_error_result(link, status) unless links or status.can_continue?
+    return self.push_error_result(link, status) unless links or status.can_continue?
 
     if links
       # if it was a folder or crypter, resolve all found links
@@ -40,8 +40,9 @@ class Plowshare::Resolver
         self.resolve(link)
       end
     else
+      self.debug "resolving single link #{link}"
       info, status = @api.probe(link)
-      self.push_error_result(link, status) unless info
+      return self.push_error_result(link, status) unless info
 
       self.debug "found #{info}"
       resolvable = Plowshare::Resolvable.new(link, info)

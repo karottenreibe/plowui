@@ -50,9 +50,9 @@ class Status
   def self.from_plowshare(plowshare_status)
     status = Status.new
 
-    plowshare_status %= 100
+    normalized_status = plowshare_status % 100
 
-    case plowshare_status
+    case normalized_status
     when 0 then status.online!
     when 1 then status.error!("module out of date", true)
     when 2 then status.error!("not supported", true)

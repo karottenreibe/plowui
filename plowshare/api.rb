@@ -1,4 +1,4 @@
-require 'open4'
+require 'open3'
 require 'thread'
 
 # Class for interfacing with plowshare's executables.
@@ -88,18 +88,18 @@ class Plowshare::API
   # If the command exits with a non-zero exit code, returns nil.
   # Also returns a status object based on the exit code of the call.
   def call(command)
-    output = nil
     $log.debug("exec #{command}")
-    exit_code = Open4::popen4(command) do |pid, stdin, stdout, stderr|
-      output = stdout.read
-      errors = stderr.read
-      $log.debug("stderr = #{errors}") if errors
-    end
-    status = Status.from_plowshare(exit_code)
-    $log.debug("exit_code = #{exit_code} (#{status})")
 
-    return nil, status unless exit_code.to_i == 0
-    return output, status
+    stdout, stderr, exit_status = Open3::capture3(ENV, command)
+    $log.debug("stderr = #{stderr}") if stderr
+    $log.debug("stdout = #{stdout}")
+    $log.debug("exit status = #{exit_status}")
+
+    status = Status.from_plowshare(exit_status.exitstatus)
+    $log.debug("status = #{status}")
+
+    return nil, status unless exit_status.success?
+    return stdout, status
   end
 
 end
