@@ -9,7 +9,7 @@ class Aria
   # :password => the password for authentication with the server
   # :port => The port to connect to
   # :host => The host to connect to
-  def initialize(opts)
+  def initialize(opts = {})
     default_opts = {
       :port => 6800,
       :host => "localhost"
@@ -20,8 +20,12 @@ class Aria
   end
 
   # Adds the given link to the server and starts it.
-  def add(link)
-    @server.call("aria2.addUri", [link])
+  def add(link, file_name = nil)
+    if file_name
+      @server.call("aria2.addUri", [link], { 'out' => file_name })
+    else
+      @server.call("aria2.addUri", [link])
+    end
     return true
   rescue XMLRPC::FaultException => e
     $log.error("could not contact aria2: #{e.faultString}")
