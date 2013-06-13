@@ -28,8 +28,11 @@ class MainWindow < Gtk::Window
       Gtk.main_quit
     end
 
+    scroller = Gtk::ScrolledWindow.new
+    self.add(scroller)
+
     @table = LinksTable.new
-    self.add(@table.widget)
+    scroller.add_with_viewport(@table.widget)
 
     @clipboard = NonRepeatingClipboard.new
     @parser = LinkParser.new
