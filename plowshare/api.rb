@@ -44,32 +44,34 @@ class Plowshare::API
   # Call plowlist to resolve folders and crypters.
   # If links were found, returns them as an array.
   # Otherwise returns nil.
+  # Also returns a status object based on the exit code of the call.
   def list(link)
-    output = call("plowlist #{link} --printf '%u' -R")
-    return nil unless output
+    output, status = call("plowlist #{link} --printf '%u' -R")
+    return nil, status unless output
 
-    return output.split(/\n/)
+    return output.split(/\n/), status
   end
 
   # Call plowprobe to get info about a link.
   # Returns the gathered info.
   # If an error occurred, returns nil.
+  # Also returns a status object based on the exit code of the call.
   def probe(link)
-    output = call("plowprobe #{link} --printf '%c%n%m%n%f%n%s'")
-    return nil unless output
+    output, status = call("plowprobe #{link} --printf '%m%n%f%n%s'")
+    return nil, status unless output
 
     lines = output.split(/\n/)
-    status = Status.from_plowshare(lines[0].to_i)
     hoster = lines[1]
     name = lines[2]
     size = lines[3].to_i
-
-    return {
+    info = {
       :size => size,
       :status => status,
       :hoster => hoster,
       :name => name,
     }
+
+    return info, status
   end
 
   # Call plowdown to obtain a download link.
@@ -84,16 +86,20 @@ class Plowshare::API
 
   # Executes the given command and returns the result.
   # If the command exits with a non-zero exit code, returns nil.
+  # Also returns a status object based on the exit code of the call.
   def call(command)
     output = nil
     $log.debug("exec #{command}")
-    status = Open4::popen4(command) do |pid, stdin, stdout, stderr|
+    exit_code = Open4::popen4(command) do |pid, stdin, stdout, stderr|
       output = stdout.read
       errors = stderr.read
       $log.debug("stderr = #{errors}") if errors
     end
-    return nil unless status.to_i == 0
-    return output
+    status = Status.from_plowshare(exit_code)
+    $log.debug("exit_code = #{exit_code} (#{status})")
+
+    return nil, status unless exit_code.to_i == 0
+    return output, status
   end
 
 end
