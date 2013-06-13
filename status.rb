@@ -2,7 +2,7 @@
 class Status
 
   def initialize
-    @status = :unknown
+    @status = :"resolving..."
     @message = nil
     @can_continue = true
   end

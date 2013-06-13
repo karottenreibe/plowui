@@ -90,16 +90,16 @@ class LinksTable
 
     def initialize(url)
       @url = url
-      @hoster = :unknown
-      @name = :unknown
+      @hoster = :"resolving..."
+      @name = :"resolving..."
       @size = 0
-      @status = :unknown
+      @status = Status.new
 
       @hoster_label = Gtk::Label.new(@hoster.to_s)
       @url_label = Gtk::Label.new(@url.to_s)
       @status_label = Gtk::Label.new(@status.to_s)
-      @name_label = Gtk::Label.new(@status.to_s)
-      @size_label = Gtk::Label.new(@status.to_s)
+      @name_label = Gtk::Label.new(@name.to_s)
+      @size_label = Gtk::Label.new(@size.to_s)
       @widgets = [@hoster_label, @url_label, @name_label, @size_label, @status_label]
     end
 
