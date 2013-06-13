@@ -45,7 +45,10 @@ class Plowshare::API
   # If links were found, returns them as an array.
   # Otherwise returns nil.
   def list(link)
-    # TODO
+    output = call("plowlist #{link} --printf '%u' -R")
+    return nil unless output
+
+    return output.split(/\n/)
   end
 
   # Call plowprobe to get info about a link.

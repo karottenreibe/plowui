@@ -44,6 +44,7 @@ class Status
     when 11 then status.error!("temporarily unavailable")
     when 12 then status.error!("requires authentication")
     when 13 then status.offline!
+    when 15 then status.error!("bug in plowui")
     else status.error!("unknown error code #{plowshare_status}")
     end
 
