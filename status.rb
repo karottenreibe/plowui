@@ -34,16 +34,22 @@ class Status
   def self.from_plowshare(plowshare_status)
     status = Status.new
 
+    plowshare_status %= 100
+
     case plowshare_status
     when 0 then status.online!
     when 1 then status.error!("module out of date")
     when 2 then status.error!("not supported")
     when 3 then status.error!("network error")
+    when 3 then status.error!("login failed")
+    when 5, 6 then status.error!("timeout")
+    when 7 then status.error!("captcha error")
     when 8 then status.error!("bug in the module")
     when 10 then status.offline!("temporarily unavailable")
     when 11 then status.error!("temporarily unavailable")
     when 12 then status.error!("requires authentication")
     when 13 then status.offline!
+    when 14 then status.error!("file too big")
     when 15 then status.error!("bug in plowui")
     else status.error!("unknown error code #{plowshare_status}")
     end
