@@ -1,4 +1,4 @@
-require './bridge/ui.rb'
+require_relative 'bridge/ui.rb'
 
 # Handles asynchronous communication with plowdown.
 # Allows for solving captchas.
@@ -27,7 +27,7 @@ class Plowshare::DownloadAttempt
     fifo_in = Tempfile.new
     fifo_out = Tempfile.new
     # TODO .close .unlink
-    @bridge = UIBridge.new(fifo_in, fifo_out)
+    @bridge = Plowshare::Bridge::UI.new(fifo_in, fifo_out)
 
     Thread.new do
       self.download

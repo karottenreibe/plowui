@@ -2,7 +2,8 @@
 module Plowshare
 end
 
-require './plowshare/api.rb'
-require './plowshare/resolvable.rb'
-require './plowshare/resolver.rb'
+require_relative 'plowshare/api.rb'
+require_relative 'plowshare/download_attempt.rb'
+require_relative 'plowshare/resolvable.rb'
+require_relative 'plowshare/resolver.rb'
 
