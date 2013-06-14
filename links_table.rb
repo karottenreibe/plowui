@@ -4,15 +4,33 @@ class LinksTable
   # The Gtk widget of the table.
   attr_reader :widget
 
-  COLUMNS = 4
+  COLUMNS = 6
 
   def initialize
     @widget = Gtk::Table.new(1, COLUMNS)
     @widget.column_spacings = 10
     @widget.row_spacings = 5
+
     @entries = []
     @entries_by_id = {}
     @next_id = 0
+
+    @entry_widgets = Hash.new do |hash, key|
+      hash[key] = key.widgets + self.create_buttons(key)
+    end
+  end
+
+  # Creates the download and delete buttons for the given
+  # entry.
+  def create_buttons(entry)
+    delete_button = Gtk::Button.new("\u232B")
+    delete_button.signal_connect('clicked') do
+      self.remove(entry)
+    end
+
+    download_button = Gtk::Button.new("\u21A1")
+
+    return [delete_button, download_button]
   end
 
   # Adds an entry to the table.
@@ -36,11 +54,12 @@ class LinksTable
 
   # Removes an entry from the table.
   def remove(entry)
-    @entries.map(&:widgets).flatten.each do |widget|
+    @entry_widgets.values.flatten.each do |widget|
       @widget.remove(widget)
     end
 
     @entries.delete(entry)
+    @entry_widgets.delete(entry)
     self.resize_table()
 
     @entries.each_with_index do |entry, row|
@@ -57,7 +76,7 @@ class LinksTable
 
   # Adds the given entry's widgets into the given table row.
   def attach_entry(entry, row)
-    entry.widgets.each_with_index do |widget, i|
+    @entry_widgets[entry].each_with_index do |widget, i|
       xflag = Gtk::FILL
       if i == 1 then
         xflag = Gtk::FILL | Gtk::EXPAND
@@ -100,6 +119,7 @@ class LinksTable
       @status_label = Gtk::Label.new(@status.to_s)
       @name_label = Gtk::Label.new(@name.to_s)
       @size_label = Gtk::Label.new(@size.to_s)
+
       @widgets = [@hoster_label, @url_label, @name_label, @size_label, @status_label]
     end
 
