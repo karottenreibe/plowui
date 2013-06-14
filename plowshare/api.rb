@@ -74,20 +74,6 @@ class Plowshare::API
     return info, status
   end
 
-  # Call plowdown to obtain a download link.
-  # Returns the download link and file name.
-  # If an error occurred, returns nil.
-  #
-  # If entering a captcha is required, calls the
-  # given block
-  def down(link)
-    output, status = call("plowdown --skip-final --printf '%f%n%d' #{link}")
-    return nil, status unless output
-
-    lines = output.split(/\n/)
-    return lines[0], lines[1]
-  end
-
   # Executes the given command and returns the result.
   # If the command exits with a non-zero exit code, returns nil.
   # Also returns a status object based on the exit code of the call.

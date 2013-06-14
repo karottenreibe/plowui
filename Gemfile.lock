@@ -13,6 +13,7 @@ GEM
       atk (= 2.0.2)
       gdk_pixbuf2 (= 2.0.2)
       pango (= 2.0.2)
+    mkfifo (0.0.1)
     pango (2.0.2)
       cairo (>= 1.12.5)
       glib2 (= 2.0.2)
@@ -24,4 +25,5 @@ PLATFORMS
 
 DEPENDENCIES
   gtk2
+  mkfifo
   simplehttp
