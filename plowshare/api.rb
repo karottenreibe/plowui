@@ -57,10 +57,11 @@ class Plowshare::API
   # If an error occurred, returns nil.
   # Also returns a status object based on the exit code of the call.
   def probe(link)
-    output, status = call("plowprobe #{link} --printf '%m%n%f%n%s'")
+    output, status = call("plowprobe #{link} --printf '%c%n%m%n%f%n%s'")
     return nil, status unless output
 
     lines = output.split(/\n/)
+    status = Status.from_plowshare(lines[0].to_i)
     hoster = lines[1]
     name = lines[2]
     size = lines[3].to_i
