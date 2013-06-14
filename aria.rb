@@ -20,12 +20,27 @@ class Aria
   end
 
   # Adds the given link to the server and starts it.
-  def add(link, file_name = nil)
+  # Will download to the given filename. If it is nil, downloads to
+  # the default filename chosen by aria2.
+  # If cookies is not nil, treats the given array of strings as cookie
+  # definitons of the form name=value and sends them to aria2.
+  #
+  # C.f. http://sourceforge.net/apps/phpbb/aria2/viewtopic.php?f=2&t=63
+  def add(link, file_name = nil, cookies = nil)
+    opts = {}
+
     if file_name
-      @server.call("aria2.addUri", [link], { 'out' => file_name })
-    else
-      @server.call("aria2.addUri", [link])
+      opts.merge!('out' => file_name)
     end
+
+    if cookies
+      cookies = cookies.map do |cookie|
+        "Cookie: #{cookie}"
+      end
+      opts.merge!('header' => cookies)
+    end
+
+    @server.call("aria2.addUri", [link], opts)
     return true
   rescue XMLRPC::FaultException => e
     $log.error("could not contact aria2: #{e.faultString}")
