@@ -1,3 +1,5 @@
+# Some classes that use this base class may be run as external
+# scripts. Thus these modules may not have been created.
 module Plowshare
   module Bridge
   end

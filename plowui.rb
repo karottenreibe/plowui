@@ -11,12 +11,12 @@ $log.formatter = proc do |severity, time, program_name, message|
   "#{severity}\t#{message}\n"
 end
 
-require './status.rb'
-require './clipboard.rb'
-require './link_parser.rb'
-require './uniqueness_filter.rb'
-require './links_table.rb'
-require './plowshare.rb'
+require_relative 'status.rb'
+require_relative 'clipboard.rb'
+require_relative 'link_parser.rb'
+require_relative 'uniqueness_filter.rb'
+require_relative 'links_table.rb'
+require_relative 'plowshare.rb'
 
 # The main window of the application.
 class MainWindow < Gtk::Window
