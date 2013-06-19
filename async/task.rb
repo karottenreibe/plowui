@@ -42,7 +42,7 @@ class Async::Task
 
   # Changes the status and result.
   # This method ensures that the result is always set
-  # before the status.
+  # before the status to avoid race conditions.
   def change_status(status, result)
     @result = result
     @status = status
