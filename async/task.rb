@@ -39,5 +39,13 @@ class Async::Task
     return @status == :error
   end
 
+  # Changes the status and result.
+  # This method ensures that the result is always set
+  # before the status.
+  def change_status(status, result)
+    @result = result
+    @status = status
+  end
+
 end
 
