@@ -1,3 +1,5 @@
+require 'thread'
+
 # A task that is executed in a thread.
 # Subclasses must implement #run.
 class Async::Task
@@ -16,8 +18,7 @@ class Async::Task
   attr_reader :result
 
   # Starts the task.
-  def initialize(task_manager, *args)
-    @manager = task_manager
+  def initialize(*args)
     @status = :running
     @thread = Thread.new do
       self.run(*args)

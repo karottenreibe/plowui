@@ -4,9 +4,12 @@ class LinksTable
   # The Gtk widget of the table.
   attr_reader :widget
 
+  # The number of columns in the table.
   COLUMNS = 6
 
-  def initialize
+  def initialize(download_manager)
+    @download_manager = download_manager
+
     @widget = Gtk::Table.new(1, COLUMNS)
     @widget.column_spacings = 10
     @widget.row_spacings = 5
@@ -29,6 +32,9 @@ class LinksTable
     end
 
     download_button = Gtk::Button.new("\u21A1")
+    download_button.signal_connect('clicked') do
+      @download_manager.add(entry.url)
+    end
 
     return [delete_button, download_button]
   end

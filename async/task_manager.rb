@@ -11,7 +11,7 @@ class Async::TaskManager
   # Creates a new task with the given arguments.
   # Starts the task.
   def add(id, *args)
-    @tasks[id] = task_factory.new(self, *args)
+    @tasks[id] = task_factory.new(*args)
   end
 
   # Returns all stored tasks.

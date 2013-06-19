@@ -1,36 +1,22 @@
-require 'thread'
+require_relative '../async/task.rb'
 
 # Resolves a resolvable using plowshare.
-class Plowshare::Resolver
+class Plowshare::Resolver < Async::Task
 
-  # The resolvable that is being resolved.
-  attr_reader :resolvable
-
-  # The id associated with the resolver
-  attr_reader :id
-
-  def initialize(link, id, api)
-    @id = id
+  # Tries to resolve the link using the api.
+  def run(link, api)
+    @original_link = link
     @api = api
-    @thread = Thread.new do
-      self.resolve(link)
-    end
+    @results = []
+
+    self.resolve(link)
+    self.change_status(:success, @results)
   end
 
-  # Returns true if the resolver is done.
-  def done?
-    return !@thread.status
-  end
-
-  # Sends a debug message to the logger
-  def debug(message)
-    $log.debug "resolving #{@id}: #{message}"
-  end
-
-  # Run from a thread. Tries to resolve the link.
+  # Tries to resolve the link.
   def resolve(link)
     self.debug "starting to resolve #{link}"
-    links, status = @api.list(link)
+    links, status = api.list(link)
     return self.push_error_result(link, status) unless links or status.can_continue?
 
     if links
@@ -41,16 +27,17 @@ class Plowshare::Resolver
       end
     else
       self.debug "resolving single link #{link}"
-      info, status = @api.probe(link)
+      info, status = api.probe(link)
       return self.push_error_result(link, status) unless info
 
       self.debug "found #{info}"
       resolvable = Plowshare::Resolvable.new(link, info)
-      @api.add_result(resolvable)
+      @results << resolvable
     end
   end
 
-  # Pushes an error result for the given link to the api.
+  # Sets an error result for the given link and status.
+  # Always returns false.
   def push_error_result(link, status)
     info = {
       :name => :unknown,
@@ -58,8 +45,13 @@ class Plowshare::Resolver
       :hoster => :unknown,
       :status => status
     }
-    resolvable = Plowshare::Resolvable.new(@link, info)
-    @api.add_result(resolvable)
+    resolvable = Plowshare::Resolvable.new(@original_link, info)
+    @results << resolvable
+  end
+
+  # Sends a debug message to the logger
+  def debug(message)
+    $log.debug "resolving #{@id}: #{message}"
   end
 
 end
