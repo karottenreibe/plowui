@@ -48,6 +48,16 @@ class MainWindow < Gtk::Window
       self.check_resolvers
       true
     end
+
+    Gtk.idle_add do
+      self.check_downloads
+      true
+    end
+
+    Gtk.idle_add do
+      self.check_captchas
+      true
+    end
   end
 
   # Checks for new links in the clipboard.
@@ -82,6 +92,27 @@ class MainWindow < Gtk::Window
       entry.size = resolvable.size
       @table.add(entry)
     end
+  end
+
+  # Checks if downloads are finished.
+  def check_downloads
+    @api.done_attempts.each do |attempt|
+      entry = @table.entry(attempt.id)
+      if attempt.error
+        status = Status.new
+        status.error!(error)
+        entry.status = status
+      else
+        @table.remove(entry)
+      end
+    end
+  end
+
+  # Checks if captchas need solving.
+  def check_captchas
+    attempts = @api.captcha_attempts
+    return if attempts.empty?
+    # TODO fill and show captcha window, might already be visible!
   end
 
 end
