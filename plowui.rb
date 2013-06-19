@@ -55,28 +55,17 @@ class MainWindow < Gtk::Window
     @parser = LinkParser.new
     @filter = UniquenessFilter.new
 
-    Gtk.idle_add do
-      self.check_clipboard
-      true
-    end
+    self.idle(:check_clipboard)
+    self.idle(:check_resolvers)
+    self.idle(:check_downloads)
+    self.idle(:check_captchas)
+    self.idle(:refresh_task_table)
+  end
 
+  # Adds a new idle function with the given name.
+  def idle(name)
     Gtk.idle_add do
-      self.check_resolvers
-      true
-    end
-
-    Gtk.idle_add do
-      self.check_downloads
-      true
-    end
-
-    Gtk.idle_add do
-      self.check_captchas
-      true
-    end
-
-    Gtk.idle_add do
-      self.refresh_task_table
+      self.send(name)
       true
     end
   end
