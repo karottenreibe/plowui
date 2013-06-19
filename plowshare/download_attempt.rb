@@ -18,6 +18,9 @@ class Plowshare::DownloadAttempt
   # C.f. http://sourceforge.net/apps/phpbb/aria2/viewtopic.php?f=2&t=63
   attr_reader :cookies
 
+  # If an error occurred, returns its description. Otherwise nil.
+  attr_reader :error
+
   # Tries to download the given link.
   def initalize(link)
     @captcha = nil

@@ -68,8 +68,7 @@ class MainWindow < Gtk::Window
 
   # Checks the API for resolver results.
   def check_resolvers
-    done_ids = @api.done_ids
-    done_ids.each do |id|
+    @api.resolved_ids.each do |id|
       entry = @table.entry(id)
       @table.remove(entry)
     end

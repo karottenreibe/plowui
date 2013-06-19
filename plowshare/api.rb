@@ -7,6 +7,7 @@ class Plowshare::API
   def initialize
     @resolvers = []
     @resolvables = []
+    @attempts = []
     @mutex = Mutex.new
   end
 
@@ -24,12 +25,18 @@ class Plowshare::API
   end
 
   # Returns all IDs that have been resolved.
-  def done_ids
-    done_resolvers = @resolvers.find_all(&:done?)
-    @resolvers.reject! do |resolver|
+  def resolved_ids
+    return get_and_remove_done(@resolvers).map(&:id)
+  end
+
+  # Returns all :done? items from the given collection and also removes
+  # them from it.
+  def get_and_remove_done(collection)
+    done_resolvers = collection.find_all(&:done?)
+    collection.reject! do |resolver|
       done_resolvers.include?(resolver)
     end
-    return done_resolvers.map(&:id)
+    return done_resolvers
   end
 
   # Returns all done resolvables.
@@ -39,6 +46,16 @@ class Plowshare::API
       @resolvables = []
       return resolvables
     end
+  end
+
+  # Returns a list of attempts that need captcha solving.
+  def captcha_attempts
+    return @attempts.find_all?(&:needs_captcha?)
+  end
+
+  # Returns all download attempts that are done.
+  def done_download_attempts
+    return get_and_remove_done(@attempts)
   end
 
   # Call plowlist to resolve folders and crypters.
@@ -73,6 +90,11 @@ class Plowshare::API
     }
 
     return info, status
+  end
+
+  # Tries to resolve the given link and add it to aria.
+  def down(link)
+    @attempts << Plowshare::DownloadAttempt.new(link)
   end
 
   # Executes the given command and returns the result.
