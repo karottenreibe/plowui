@@ -1,5 +1,5 @@
 require_relative 'bridge/ui.rb'
-require_relative '../async/task.rb'
+require_relative '../async.rb'
 
 # Handles asynchronous communication with plowdown.
 # Allows for solving captchas.

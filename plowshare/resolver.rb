@@ -1,4 +1,4 @@
-require_relative '../async/task.rb'
+require_relative '../async.rb'
 
 # Resolves a resolvable using plowshare.
 class Plowshare::Resolver < Async::Task

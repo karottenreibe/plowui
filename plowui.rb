@@ -17,8 +17,8 @@ require_relative 'link_parser.rb'
 require_relative 'uniqueness_filter.rb'
 require_relative 'link_table.rb'
 require_relative 'task_table.rb'
-require_relative 'plowshare.rb'
 require_relative 'async.rb'
+require_relative 'plowshare.rb'
 
 # The main window of the application.
 class MainWindow < Gtk::Window
@@ -30,15 +30,24 @@ class MainWindow < Gtk::Window
       Gtk.main_quit
     end
 
-    scroller = Gtk::ScrolledWindow.new
-    self.add(scroller)
+    main_table = Gtk::Table.new(5, 1)
+    self.add(main_table)
+
+    main_table.attach(Gtk::Label.new("Found Links"), 0, 1, 0, 1, Gtk::FILL, Gtk::FILL, 0, 10)
+    link_scroller = Gtk::ScrolledWindow.new
+    main_table.attach(link_scroller, 0, 1, 1, 3, Gtk::EXPAND | Gtk::FILL, Gtk::EXPAND | Gtk::FILL)
+
+    main_table.attach(Gtk::Label.new("Running tasks"), 0, 1, 3, 4, Gtk::FILL, Gtk::FILL, 0, 10)
+    task_scroller = Gtk::ScrolledWindow.new
+    main_table.attach(task_scroller, 0, 1, 4, 5, Gtk::EXPAND | Gtk::FILL, Gtk::EXPAND | Gtk::FILL)
 
     @download_manager = Async::TaskManager.new(Plowshare::Download)
     @resolver_manager = Async::TaskManager.new(Plowshare::Resolver)
 
     @link_table = LinkTable.new(@download_manager)
+    link_scroller.add_with_viewport(@link_table.widget)
     @task_table = TaskTable.new
-    scroller.add_with_viewport(@link_table.widget)
+    task_scroller.add_with_viewport(@task_table.widget)
 
     @clipboard = NonRepeatingClipboard.new
     @parser = LinkParser.new
@@ -121,7 +130,7 @@ class MainWindow < Gtk::Window
 
   # Checks if captchas need solving.
   def check_captchas
-    downloads = @download_manager.tasks.find_all? do |task|
+    downloads = @download_manager.tasks.find_all do |task|
       task.status == :captcha
     end
     return if downloads.empty?

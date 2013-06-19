@@ -5,7 +5,7 @@ class Async::TaskManager
   # from its #new method.
   def initialize(task_factory)
     @tasks = {}
-    @task_factory = task_class
+    @task_factory = task_factory
   end
 
   # Creates a new task with the given arguments.
