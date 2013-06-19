@@ -15,7 +15,8 @@ require_relative 'status.rb'
 require_relative 'clipboard.rb'
 require_relative 'link_parser.rb'
 require_relative 'uniqueness_filter.rb'
-require_relative 'links_table.rb'
+require_relative 'link_table.rb'
+require_relative 'task_table.rb'
 require_relative 'plowshare.rb'
 require_relative 'async.rb'
 
@@ -35,8 +36,9 @@ class MainWindow < Gtk::Window
     @download_manager = Async::TaskManager.new(Plowshare::Download)
     @resolver_manager = Async::TaskManager.new(Plowshare::Resolver)
 
-    @table = LinksTable.new(@download_manager)
-    scroller.add_with_viewport(@table.widget)
+    @link_table = LinkTable.new(@download_manager)
+    @task_table = TaskTable.new
+    scroller.add_with_viewport(@link_table.widget)
 
     @clipboard = NonRepeatingClipboard.new
     @parser = LinkParser.new
@@ -61,6 +63,11 @@ class MainWindow < Gtk::Window
       self.check_captchas
       true
     end
+
+    Gtk.idle_add do
+      self.refresh_task_table
+      true
+    end
   end
 
   # Checks for new links in the clipboard.
@@ -73,8 +80,8 @@ class MainWindow < Gtk::Window
 
     @filter.filter(links) do |link|
       $log.debug("adding #{link}")
-      entry = LinksTable::Entry.new(link)
-      id = @table.add(entry)
+      entry = LinkTable::Entry.new(link)
+      id = @link_table.add(entry)
       @resolver_manager.add(id, link)
     end
   end
@@ -83,31 +90,31 @@ class MainWindow < Gtk::Window
   def check_resolvers
     done = @resolver_manager.done
     done.keys.each do |id|
-      entry = @table.entry(id)
-      @table.remove(entry)
+      entry = @link_table.entry(id)
+      @link_table.remove(entry)
     end
 
     resolvables = done.map(&:result).flatten
     resolvables.each do |resolvable|
-      entry = LinksTable::Entry.new(resolvable.link)
+      entry = LinkTable::Entry.new(resolvable.link)
       entry.status = resolvable.status
       entry.name = resolvable.name
       entry.hoster = resolvable.hoster
       entry.size = resolvable.size
-      @table.add(entry)
+      @link_table.add(entry)
     end
   end
 
   # Checks if downloads are finished.
   def check_downloads
     @download_manager.done.each do |id,download|
-      entry = @table.entry(id)
+      entry = @link_table.entry(id)
       if attempt.error?
         status = Status.new
         status.error!(attempt.result)
         entry.status = status
       else
-        @table.remove(entry)
+        @link_table.remove(entry)
       end
     end
   end
@@ -119,6 +126,11 @@ class MainWindow < Gtk::Window
     end
     return if downloads.empty?
     # TODO fill and show captcha window, might already be visible!
+  end
+
+  # Refreshes the task table from the task managers.
+  def refresh_task_table
+    @task_table.refresh(@download_manager, @resolver_manager)
   end
 
 end

@@ -1,5 +1,5 @@
 # Shows all links and their status.
-class LinksTable
+class LinkTable
 
   # The Gtk widget of the table.
   attr_reader :widget
