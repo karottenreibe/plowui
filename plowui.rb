@@ -20,6 +20,8 @@ require_relative 'task_table.rb'
 require_relative 'async.rb'
 require_relative 'plowshare.rb'
 
+Thread::abort_on_exception = true
+
 # The main window of the application.
 class MainWindow < Gtk::Window
 
@@ -103,7 +105,7 @@ class MainWindow < Gtk::Window
       @link_table.remove(entry)
     end
 
-    resolvables = done.map(&:result).flatten
+    resolvables = done.values.map(&:result).flatten
     resolvables.each do |resolvable|
       entry = LinkTable::Entry.new(resolvable.link)
       entry.status = resolvable.status

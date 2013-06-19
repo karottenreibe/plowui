@@ -17,6 +17,10 @@ class Async::Task
   # In case of an error, contains the error message.
   attr_reader :result
 
+  # The user-readable name of the task.
+  # Should be set in #run().
+  attr_reader :name
+
   # Starts the task.
   def initialize(*args)
     @status = :running

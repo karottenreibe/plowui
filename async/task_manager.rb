@@ -11,7 +11,7 @@ class Async::TaskManager
   # Creates a new task with the given arguments.
   # Starts the task.
   def add(id, *args)
-    @tasks[id] = task_factory.new(*args)
+    @tasks[id] = @task_factory.new(*args)
   end
 
   # Returns all stored tasks.
@@ -30,7 +30,7 @@ class Async::TaskManager
       map
     end
     done_ids.each do |id|
-      @tasks.remove(id)
+      @tasks.delete(id)
     end
     return done_tasks
   end

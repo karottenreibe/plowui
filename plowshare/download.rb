@@ -12,6 +12,8 @@ class Plowshare::Download < Async::Task
 
   # Calls plowshare to perform the download.
   def run(link)
+    @name = "downloading #{link}"
+
     fifo_in = Tempfile.new
     fifo_out = Tempfile.new
 

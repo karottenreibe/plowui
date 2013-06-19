@@ -3,10 +3,12 @@ require_relative '../async.rb'
 # Resolves a resolvable using plowshare.
 class Plowshare::Resolver < Async::Task
 
-  # Tries to resolve the link using the api.
-  def run(link, api)
+  # Tries to resolve the link.
+  def run(link)
+    @name = "resolving #{link}"
+
     @original_link = link
-    @api = api
+    @api = Plowshare::API.new
     @results = []
 
     self.resolve(link)
@@ -16,7 +18,7 @@ class Plowshare::Resolver < Async::Task
   # Tries to resolve the link.
   def resolve(link)
     self.debug "starting to resolve #{link}"
-    links, status = api.list(link)
+    links, status = @api.list(link)
     return self.push_error_result(link, status) unless links or status.can_continue?
 
     if links
@@ -27,7 +29,7 @@ class Plowshare::Resolver < Async::Task
       end
     else
       self.debug "resolving single link #{link}"
-      info, status = api.probe(link)
+      info, status = @api.probe(link)
       return self.push_error_result(link, status) unless info
 
       self.debug "found #{info}"
