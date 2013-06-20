@@ -5,7 +5,7 @@ class TaskTable
   attr_reader :widget
 
   def initialize()
-    @model = Gtk::ListStore.new(String, String)
+    @model = Gtk::ListStore.new(String, String, Async::Task)
     @widget = Gtk::TreeView.new(@model)
 
     renderer = Gtk::CellRendererText.new
@@ -14,25 +14,56 @@ class TaskTable
       column.expand = true
       @widget.append_column(column)
     end
+
+    @tasks = []
+  end
+
+  # Returns all selected tasks.
+  def selected
+    tasks = []
+    @widget.selection.selected_each do |model, path, iter|
+      tasks << iter[2]
+    end
+    return tasks
   end
 
   # Refreshes the table from the given task managers.
   def refresh(*managers)
-    @model.clear()
+    iter = @model.iter_first
+    valid = !iter.nil?
+    while valid
+      task = iter[2]
+      if task.done?
+        valid = @model.remove(iter)
+        @tasks.delete(task)
+      else
+        self.set(iter, task)
+        valid = iter.next!
+      end
+    end
+
     tasks = managers.map(&:tasks).flatten
-    self.populate(tasks)
+    tasks_to_add = tasks - @tasks
+    self.add(tasks_to_add)
   end
 
   # Adds an entry for all tasks.
-  def populate(tasks)
+  def add(tasks)
     tasks.each do |task|
-      status = task.status
-      status = "#{status} (#{task.result})" if task.error?
-
       iter = @model.append()
-      iter[0] = task.name
-      iter[1] = status
+      self.set(iter, task)
     end
+    @tasks += tasks
+  end
+
+  # Sets the given iterator's values from the given task.
+  def set(iter, task)
+    status = task.status
+    status = "#{status} (#{task.result})" if task.error?
+
+    iter[0] = task.name
+    iter[1] = status
+    iter[2] = task
   end
 
 end

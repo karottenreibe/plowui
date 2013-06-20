@@ -35,11 +35,11 @@ class MainWindow < Gtk::Window
     main_table = Gtk::Table.new(5, 1)
     self.add(main_table)
 
-    main_table.attach(Gtk::Label.new("Found Links"), 0, 1, 0, 1, Gtk::FILL, Gtk::FILL, 0, 10)
+    main_table.attach(self.create_link_header(), 0, 1, 0, 1, Gtk::FILL, Gtk::FILL, 0, 10)
     link_scroller = Gtk::ScrolledWindow.new
     main_table.attach(link_scroller, 0, 1, 1, 3, Gtk::EXPAND | Gtk::FILL, Gtk::EXPAND | Gtk::FILL)
 
-    main_table.attach(Gtk::Label.new("Running tasks"), 0, 1, 3, 4, Gtk::FILL, Gtk::FILL, 0, 10)
+    main_table.attach(self.create_task_header(), 0, 1, 3, 4, Gtk::FILL, Gtk::FILL, 0, 10)
     task_scroller = Gtk::ScrolledWindow.new
     main_table.attach(task_scroller, 0, 1, 4, 5, Gtk::EXPAND | Gtk::FILL, Gtk::EXPAND | Gtk::FILL)
 
@@ -60,6 +60,53 @@ class MainWindow < Gtk::Window
     self.idle(:check_downloads)
     self.idle(:check_captchas)
     self.idle(:refresh_task_table)
+  end
+
+  # Returns the header widget above the link table.
+  def create_link_header()
+    hbox = Gtk::HBox.new
+
+    label = Gtk::Label.new("Found Links")
+    hbox.pack_start(label, false)
+
+    delete_button = Gtk::Button.new("\u2718")
+    delete_button.set_size_request(50, -1)
+    delete_button.signal_connect('clicked') do
+      @link_table.selected.each do |entry|
+        @link_table.remove(entry)
+      end
+    end
+    hbox.pack_end(delete_button, false)
+
+    download_button = Gtk::Button.new("\u21A1")
+    download_button.set_size_request(50, -1)
+    download_button.signal_connect('clicked') do
+      @link_table.selected.each do |entry|
+        @download_manager.add(entry, entry.url)
+      end
+    end
+    hbox.pack_end(download_button, false)
+
+    return hbox
+  end
+
+  # Returns the header widget above the link table.
+  def create_task_header()
+    hbox = Gtk::HBox.new
+
+    label = Gtk::Label.new("Running Tasks")
+    hbox.pack_start(label, false)
+
+    cancel_button = Gtk::Button.new("\u2718")
+    cancel_button.set_size_request(50, -1)
+    cancel_button.signal_connect('clicked') do
+      @task_table.selected.each do |task|
+        task.cancel()
+      end
+    end
+    hbox.pack_end(cancel_button, false)
+
+    return hbox
   end
 
   # Adds a new idle function with the given name.

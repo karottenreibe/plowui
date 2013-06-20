@@ -7,20 +7,13 @@ class LinkTable
   def initialize(download_manager)
     @download_manager = download_manager
 
-    @model = Gtk::ListStore.new(TrueClass, String, String, String, String, String, Entry)
+    @model = Gtk::ListStore.new(String, String, String, String, String, Entry)
     @widget = Gtk::TreeView.new(@model)
-
-    toggle_renderer = Gtk::CellRendererToggle.new
-    toggle_renderer.signal_connect("toggled") do |renderer, path|
-      iter = @model.get_iter(path)
-      iter[0] = !iter[0]
-    end
-    column = Gtk::TreeViewColumn.new("", toggle_renderer, :active => 0)
-    @widget.append_column(column)
+    @widget.selection.mode = Gtk::SELECTION_MULTIPLE
 
     renderer = Gtk::CellRendererText.new
     columns = %w{Hoster URL Name Size Status}.each_with_index.map do |label, i|
-      column = Gtk::TreeViewColumn.new(label, renderer, :text => i + 1)
+      column = Gtk::TreeViewColumn.new(label, renderer, :text => i)
       column.expand = true if [1, 4].include?(i)
       @widget.append_column(column)
       column
@@ -31,15 +24,11 @@ class LinkTable
 
   # Returns all selected entries.
   def selected
-    selected_entries = []
-
-    iter = @model.get_iter_first()
-    loop do
-      selected_entries << iter[6] if iter[0]
-      break unless iter.next!
+    entries = []
+    @widget.selection.selected_each do |model, path, iter|
+      entries << iter[5]
     end
-
-    return selected_entries
+    return entries
   end
 
   # Creates the download and delete buttons for the given
@@ -61,13 +50,10 @@ class LinkTable
   # Adds an entry to the table.
   def add(entry)
     iter = @model.append()
-    iter[0] = false
-    iter[1] = entry.hoster.to_s
-    iter[2] = entry.url.to_s
-    iter[3] = entry.name.to_s
-    iter[4] = entry.size.to_s
-    iter[5] = entry.status.to_s
-    iter[6] = entry
+    [entry.hoster, entry.url, entry.name, entry.size, entry.status].each_with_index do |item, i|
+      iter[i] = item.to_s
+    end
+    iter[5] = entry
   end
 
   # Removes an entry from the table.

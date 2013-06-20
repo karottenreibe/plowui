@@ -8,6 +8,7 @@ class Async::Task
   # Values:
   #   :running when the thread is working
   #   :error on errors
+  #   :canceled if the user canceled the task
   #   :success when finished successfully
   #
   # Further values are defined by the subclass.
@@ -26,7 +27,14 @@ class Async::Task
     @status = :running
     @thread = Thread.new do
       self.run(*args)
+      sleep 20
     end
+  end
+
+  # Violently aborts the thread and sets the status to :canceled
+  def cancel
+    self.change_status(:canceled, "")
+    @thread.kill
   end
 
   # Returns true if the thread has stopped.
