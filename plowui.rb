@@ -17,6 +17,7 @@ require_relative 'link_parser.rb'
 require_relative 'uniqueness_filter.rb'
 require_relative 'link_table.rb'
 require_relative 'task_table.rb'
+require_relative 'captcha_window.rb'
 require_relative 'async.rb'
 require_relative 'plowshare.rb'
 
@@ -31,6 +32,9 @@ class MainWindow < Gtk::Window
     signal_connect :destroy do
       Gtk.main_quit
     end
+
+    @captcha_window = CaptchaWindow.new
+    @captcha_window.show_all
 
     main_table = Gtk::Table.new(5, 1)
     self.add(main_table)
@@ -71,7 +75,7 @@ class MainWindow < Gtk::Window
 
     delete_button = Gtk::Button.new("\u2718")
     delete_button.set_size_request(50, -1)
-    delete_button.signal_connect('clicked') do
+    delete_button.signal_connect(:clicked) do
       @link_table.selected.each do |entry|
         @link_table.remove(entry)
       end
@@ -80,7 +84,7 @@ class MainWindow < Gtk::Window
 
     download_button = Gtk::Button.new("\u21A1")
     download_button.set_size_request(50, -1)
-    download_button.signal_connect('clicked') do
+    download_button.signal_connect(:clicked) do
       @link_table.selected.each do |entry|
         @download_manager.add(entry, entry.url)
       end
@@ -99,7 +103,7 @@ class MainWindow < Gtk::Window
 
     cancel_button = Gtk::Button.new("\u2718")
     cancel_button.set_size_request(50, -1)
-    cancel_button.signal_connect('clicked') do
+    cancel_button.signal_connect(:clicked) do
       @task_table.selected.each do |task|
         task.cancel()
       end
