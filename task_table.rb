@@ -4,6 +4,9 @@ class TaskTable
   # The Gtk widget of the table.
   attr_reader :widget
 
+  # The number of seconds an error task is kept in the view.
+  TASK_REMOVAL_TIMEOUT = 5
+
   def initialize()
     @model = Gtk::ListStore.new(Async::Task, String, String)
     @widget = Gtk::TreeView.new(@model)
@@ -16,6 +19,7 @@ class TaskTable
     end
 
     @tasks = []
+    @done_tasks = {}
   end
 
   # Returns all selected tasks.
@@ -34,8 +38,20 @@ class TaskTable
     while valid
       task = iter[0]
       if task.done?
-        valid = @model.remove(iter)
-        @tasks.delete(task)
+        removal_time = @done_tasks[task]
+        if not removal_time
+          @done_tasks[task] = Time.now + TASK_REMOVAL_TIMEOUT
+          @tasks.delete(task)
+          self.set(iter, task, TASK_REMOVAL_TIMEOUT)
+          valid = iter.next!
+        elsif Time.now > removal_time
+          valid = @model.remove(iter)
+          @done_tasks.delete(task)
+        else
+          time_left = (removal_time - Time.now + 1).to_i
+          self.set(iter, task, time_left)
+          valid = iter.next!
+        end
       else
         self.set(iter, task)
         valid = iter.next!
@@ -57,9 +73,12 @@ class TaskTable
   end
 
   # Sets the given iterator's values from the given task.
-  def set(iter, task)
+  # If a time is given in the last parameter, it will be shown
+  # as the number of seconds before the task is removed.
+  def set(iter, task, time_left = nil)
     status = task.status
     status = "#{status} (#{task.result})" if task.error?
+    status = "#{status} (#{time_left}s)" if time_left
 
     iter[0] = task
     iter[1] = task.name
