@@ -22,6 +22,21 @@ class LinkTable
       column
     end
 
+    columns[4].set_cell_data_func(renderer) do |column, renderer, model, iter|
+      foreground = "#000"
+
+      status = iter[0].status
+      if status.error?
+        foreground = "#f00"
+      elsif status.offline?
+        foreground = "#999"
+      elsif status.online?
+        foreground = "#090"
+      end
+
+      renderer.foreground = foreground
+    end
+
     @entries = []
   end
 

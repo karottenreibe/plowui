@@ -15,10 +15,26 @@ class TaskTable
     @widget = Gtk::TreeView.new(@model)
 
     renderer = Gtk::CellRendererText.new
-    %w{Name Status}.each_with_index do |label, i|
+    columns = %w{Name Status}.each_with_index.map do |label, i|
       column = Gtk::TreeViewColumn.new(label, renderer, :text => i + 1)
       column.expand = true
       @widget.append_column(column)
+      column
+    end
+
+    columns[0].set_cell_data_func(renderer) do |column, renderer, model, iter|
+      foreground = "#000"
+
+      task = iter[0]
+      if task.error?
+        foreground = "#f00"
+      elsif task.successful?
+        foreground = "#090"
+      elsif task.canceled?
+        foreground = "#999"
+      end
+
+      renderer.foreground = foreground
     end
 
     @tasks = []

@@ -34,10 +34,19 @@ class Status
     @can_continue
   end
 
-  # Returns true if the link is online and false
-  # if there was an error or it is offline.
+  # Returns true if the link is definitely online.
   def online?
     return @status == :online
+  end
+
+  # Returns true if the link is definitely offline.
+  def offline?
+    return @status == :offline
+  end
+
+  # Returns true if an error occurred during resolution.
+  def error?
+    return @status == :error
   end
 
   def to_s
