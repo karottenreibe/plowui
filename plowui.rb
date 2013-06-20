@@ -136,18 +136,23 @@ class MainWindow < Gtk::Window
   # Checks the API for resolver results.
   def check_resolvers
     done = @resolver_manager.done
-    done.keys.each do |entry|
-      @link_table.remove(entry)
-    end
+    done.each do |entry, resolver|
+      if resolver.successful?
+        @link_table.remove(entry)
 
-    resolvables = done.values.map(&:result).flatten
-    resolvables.each do |resolvable|
-      entry = LinkTable::Entry.new(resolvable.link)
-      entry.status = resolvable.status
-      entry.name = resolvable.name
-      entry.hoster = resolvable.hoster
-      entry.size = resolvable.size
-      @link_table.add(entry)
+        resolver.result.each do |resolvable|
+          entry = LinkTable::Entry.new(resolvable.link)
+          entry.status = resolvable.status
+          entry.name = resolvable.name
+          entry.hoster = resolvable.hoster
+          entry.size = resolvable.size
+          @link_table.add(entry)
+        end
+      else
+        # TODO canceled is represented wrong!
+        entry.status.error!(resolver.result)
+        @link_table.update(entry)
+      end
     end
   end
 
@@ -155,9 +160,8 @@ class MainWindow < Gtk::Window
   def check_downloads
     @download_manager.done.each do |entry,download|
       if attempt.error?
-        status = Status.new
-        status.error!(attempt.result)
-        entry.status = status
+        entry.status.error!(attempt.result)
+        @link_table.update(entry)
       else
         @link_table.remove(entry)
       end

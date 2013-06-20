@@ -31,25 +31,14 @@ class LinkTable
     return entries
   end
 
-  # Creates the download and delete buttons for the given
-  # entry.
-  def create_buttons(entry) # TODO
-    delete_button = Gtk::Button.new("\u232B")
-    delete_button.signal_connect('clicked') do
-      self.remove(entry)
-    end
-
-    download_button = Gtk::Button.new("\u21A1")
-    download_button.signal_connect('clicked') do
-      @download_manager.add(entry.url)
-    end
-
-    return [delete_button, download_button]
-  end
-
   # Adds an entry to the table.
   def add(entry)
     iter = @model.append()
+    self.set(iter, entry)
+  end
+
+  # Sets the values of the given iter from the entry.
+  def set(iter, entry)
     [entry.hoster, entry.url, entry.name, entry.size, entry.status].each_with_index do |item, i|
       iter[i] = item.to_s
     end
@@ -58,33 +47,26 @@ class LinkTable
 
   # Removes an entry from the table.
   def remove(entry)
-    @entries.delete(entry)
-    self.refresh()
-  end
-
-  # Removes and re-adds all entries from the model.
-  def refresh()
-    @model.clear
-    @entries.each do |id|
-      self.add(entry)
+    iter = @model.iter_first
+    valid = !iter.nil?
+    while valid
+      if entry == iter[5]
+        @model.remove(iter)
+        return
+      end
+      valid = iter.next!
     end
   end
 
-  # Resizes the table to match the number of entries.
-  def resize_table()
-    size = [@entries.size - 1, 1].max
-    @widget.resize(size, COLUMNS)
-  end
-
-  # Adds the given entry's widgets into the given table row.
-  def attach_entry(entry, row)
-    @entry_widgets[entry].each_with_index do |widget, i|
-      xflag = Gtk::FILL
-      if i == 1 then
-        xflag = Gtk::FILL | Gtk::EXPAND
+  # Updates the model values from the entry
+  def update(entry)
+    iter = @model.iter_first
+    valid = !iter.nil?
+    while valid
+      if entry == iter[5] # TODO change to 0
+        self.set(iter, entry)
       end
-      widget.set_alignment(0, 0.5)
-      @widget.attach(widget, i, i + 1, row, row + 1, xflag, Gtk::FILL)
+      valid = iter.next!
     end
   end
 
@@ -92,22 +74,19 @@ class LinkTable
   class Entry
 
     # The URL of the entry.
-    attr_reader :url
+    attr_accessor :url
 
     # The name of the hoster.
-    attr_reader :hoster
+    attr_accessor :hoster
 
     # The file name.
-    attr_reader :name
+    attr_accessor :name
 
     # The file size.
-    attr_reader :size
+    attr_accessor :size
 
     # The status of the link.
-    attr_reader :status
-
-    # The tree view this entry is associated with.
-    attr_accessor :tree_view
+    attr_accessor :status
 
     def initialize(url)
       @url = url
@@ -115,42 +94,6 @@ class LinkTable
       @name = :"resolving..."
       @size = 0
       @status = Status.new
-      @tree_view = nil
-    end
-
-    # Causes the tree view to refresh.
-    def refresh
-      @tree_view.refresh() if @tree_view
-    end
-
-    # Sets the size.
-    def size=(size)
-      @size = size
-      self.refresh()
-    end
-
-    # Sets the name.
-    def name=(name)
-      @name = name
-      self.refresh()
-    end
-
-    # Sets the URL.
-    def url=(url)
-      @url = url
-      self.refresh()
-    end
-
-    # Sets the hoster.
-    def hoster=(hoster)
-      @hoster = hoster
-      self.refresh()
-    end
-
-    # Sets the status.
-    def status=(status)
-      @status = status
-      self.refresh()
     end
 
   end

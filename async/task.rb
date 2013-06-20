@@ -27,7 +27,6 @@ class Async::Task
     @status = :running
     @thread = Thread.new do
       self.run(*args)
-      sleep 20
     end
   end
 
