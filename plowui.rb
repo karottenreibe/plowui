@@ -81,16 +81,15 @@ class MainWindow < Gtk::Window
     @filter.filter(links) do |link|
       $log.debug("adding #{link}")
       entry = LinkTable::Entry.new(link)
-      id = @link_table.add(entry)
-      @resolver_manager.add(id, link)
+      @link_table.add(entry)
+      @resolver_manager.add(entry, link)
     end
   end
 
   # Checks the API for resolver results.
   def check_resolvers
     done = @resolver_manager.done
-    done.keys.each do |id|
-      entry = @link_table.entry(id)
+    done.keys.each do |entry|
       @link_table.remove(entry)
     end
 
@@ -107,8 +106,7 @@ class MainWindow < Gtk::Window
 
   # Checks if downloads are finished.
   def check_downloads
-    @download_manager.done.each do |id,download|
-      entry = @link_table.entry(id)
+    @download_manager.done.each do |entry,download|
       if attempt.error?
         status = Status.new
         status.error!(attempt.result)

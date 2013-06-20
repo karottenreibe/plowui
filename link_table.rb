@@ -4,28 +4,47 @@ class LinkTable
   # The Gtk widget of the table.
   attr_reader :widget
 
-  # The number of columns in the table.
-  COLUMNS = 6
-
   def initialize(download_manager)
     @download_manager = download_manager
 
-    @widget = Gtk::Table.new(1, COLUMNS)
-    @widget.column_spacings = 10
-    @widget.row_spacings = 5
+    @model = Gtk::ListStore.new(TrueClass, String, String, String, String, String, Entry)
+    @widget = Gtk::TreeView.new(@model)
+
+    toggle_renderer = Gtk::CellRendererToggle.new
+    toggle_renderer.signal_connect("toggled") do |renderer, path|
+      iter = @model.get_iter(path)
+      iter[0] = !iter[0]
+    end
+    column = Gtk::TreeViewColumn.new("", toggle_renderer, :active => 0)
+    @widget.append_column(column)
+
+    renderer = Gtk::CellRendererText.new
+    columns = %w{Hoster URL Name Size Status}.each_with_index.map do |label, i|
+      column = Gtk::TreeViewColumn.new(label, renderer, :text => i + 1)
+      column.expand = true if [1, 4].include?(i)
+      @widget.append_column(column)
+      column
+    end
 
     @entries = []
-    @entries_by_id = {}
-    @next_id = 0
+  end
 
-    @entry_widgets = Hash.new do |hash, key|
-      hash[key] = key.widgets + self.create_buttons(key)
+  # Returns all selected entries.
+  def selected
+    selected_entries = []
+
+    iter = @model.get_iter_first()
+    loop do
+      selected_entries << iter[6] if iter[0]
+      break unless iter.next!
     end
+
+    return selected_entries
   end
 
   # Creates the download and delete buttons for the given
   # entry.
-  def create_buttons(entry)
+  def create_buttons(entry) # TODO
     delete_button = Gtk::Button.new("\u232B")
     delete_button.signal_connect('clicked') do
       self.remove(entry)
@@ -40,38 +59,29 @@ class LinkTable
   end
 
   # Adds an entry to the table.
-  # Returns the id of the entry.
   def add(entry)
-    @entries << entry
-    self.resize_table()
-    self.attach_entry(entry, @entries.size - 1)
-    @widget.show_all
-
-    id = @next_id
-    @next_id += 1
-    @entries_by_id[id] = entry
-    return id
-  end
-
-  # Returns the entry for the given ID.
-  def entry(id)
-    return @entries_by_id[id]
+    iter = @model.append()
+    iter[0] = false
+    iter[1] = entry.hoster.to_s
+    iter[2] = entry.url.to_s
+    iter[3] = entry.name.to_s
+    iter[4] = entry.size.to_s
+    iter[5] = entry.status.to_s
+    iter[6] = entry
   end
 
   # Removes an entry from the table.
   def remove(entry)
-    @entry_widgets.values.flatten.each do |widget|
-      @widget.remove(widget)
-    end
-
     @entries.delete(entry)
-    @entry_widgets.delete(entry)
-    self.resize_table()
+    self.refresh()
+  end
 
-    @entries.each_with_index do |entry, row|
-      self.attach_entry(entry, row)
+  # Removes and re-adds all entries from the model.
+  def refresh()
+    @model.clear
+    @entries.each do |id|
+      self.add(entry)
     end
-    @widget.show_all
   end
 
   # Resizes the table to match the number of entries.
@@ -110,8 +120,8 @@ class LinkTable
     # The status of the link.
     attr_reader :status
 
-    # The Gtk widgets of the entry, which will be inserted as table cells.
-    attr_reader :widgets
+    # The tree view this entry is associated with.
+    attr_accessor :tree_view
 
     def initialize(url)
       @url = url
@@ -119,44 +129,42 @@ class LinkTable
       @name = :"resolving..."
       @size = 0
       @status = Status.new
+      @tree_view = nil
+    end
 
-      @hoster_label = Gtk::Label.new(@hoster.to_s)
-      @url_label = Gtk::Label.new(@url.to_s)
-      @status_label = Gtk::Label.new(@status.to_s)
-      @name_label = Gtk::Label.new(@name.to_s)
-      @size_label = Gtk::Label.new(@size.to_s)
-
-      @widgets = [@hoster_label, @url_label, @name_label, @size_label, @status_label]
+    # Causes the tree view to refresh.
+    def refresh
+      @tree_view.refresh() if @tree_view
     end
 
     # Sets the size.
     def size=(size)
       @size = size
-      @size_label.text = @size.to_s
+      self.refresh()
     end
 
     # Sets the name.
     def name=(name)
       @name = name
-      @name_label.text = @name.to_s
+      self.refresh()
     end
 
     # Sets the URL.
     def url=(url)
       @url = url
-      @url_label.text = @url.to_s
+      self.refresh()
     end
 
     # Sets the hoster.
     def hoster=(hoster)
       @hoster = hoster
-      @hoster_label.text = @hoster.to_s
+      self.refresh()
     end
 
     # Sets the status.
     def status=(status)
       @status = status
-      @status_label.text = @status.to_s
+      self.refresh()
     end
 
   end
