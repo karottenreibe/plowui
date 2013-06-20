@@ -1,3 +1,5 @@
+require_relative './list_store_iterator.rb'
+
 # Shows all running tasks and their status.
 class TaskTable
 
@@ -9,6 +11,7 @@ class TaskTable
 
   def initialize()
     @model = Gtk::ListStore.new(Async::Task, String, String)
+    @iterator = ListStoreIterator.new(@model)
     @widget = Gtk::TreeView.new(@model)
 
     renderer = Gtk::CellRendererText.new
@@ -33,9 +36,7 @@ class TaskTable
 
   # Refreshes the table from the given task managers.
   def refresh(*managers)
-    iter = @model.iter_first
-    valid = !iter.nil?
-    while valid
+    @iterator.each do |iter|
       task = iter[0]
       if task.done?
         removal_time = @done_tasks[task]
@@ -43,18 +44,15 @@ class TaskTable
           @done_tasks[task] = Time.now + TASK_REMOVAL_TIMEOUT
           @tasks.delete(task)
           self.set(iter, task, TASK_REMOVAL_TIMEOUT)
-          valid = iter.next!
         elsif Time.now > removal_time
-          valid = @model.remove(iter)
+          iter.remove()
           @done_tasks.delete(task)
         else
           time_left = (removal_time - Time.now + 1).to_i
           self.set(iter, task, time_left)
-          valid = iter.next!
         end
       else
         self.set(iter, task)
-        valid = iter.next!
       end
     end
 

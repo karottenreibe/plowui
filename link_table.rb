@@ -1,3 +1,5 @@
+require_relative './list_store_iterator.rb'
+
 # Shows all links and their status.
 class LinkTable
 
@@ -8,6 +10,7 @@ class LinkTable
     @download_manager = download_manager
 
     @model = Gtk::ListStore.new(Entry, String, String, String, String, String, String)
+    @iterator = ListStoreIterator.new(@model)
     @widget = Gtk::TreeView.new(@model)
     @widget.selection.mode = Gtk::SELECTION_MULTIPLE
 
@@ -48,26 +51,21 @@ class LinkTable
 
   # Removes an entry from the table.
   def remove(entry)
-    iter = @model.iter_first
-    valid = !iter.nil?
-    while valid
+    @iterator.each do |iter|
       if entry == iter[0]
-        @model.remove(iter)
+        iter.remove()
         return
       end
-      valid = iter.next!
     end
   end
 
   # Updates the model values from the entry
   def update(entry)
-    iter = @model.iter_first
-    valid = !iter.nil?
-    while valid
+    @iterator.each do |iter|
       if entry == iter[0]
         self.set(iter, entry)
+        return
       end
-      valid = iter.next!
     end
   end
 
