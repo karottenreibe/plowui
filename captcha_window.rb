@@ -1,3 +1,4 @@
+# Lets the user solve captchas.
 class CaptchaWindow < Gtk::Window
 
   def initialize
@@ -16,6 +17,7 @@ class CaptchaWindow < Gtk::Window
     @entry = Gtk::Entry.new
     vbox.pack_start(@entry, false)
     @entry.activates_default = true
+    @entry.grab_focus()
 
     hbox = Gtk::HBox.new
     vbox.pack_start(hbox, false)
@@ -49,20 +51,38 @@ class CaptchaWindow < Gtk::Window
     @captchas = []
   end
 
+  # Aborts solving for the current url.
   def cancel
-    puts "c"
+    self.solved(:abort)
   end
 
+  # Asks for another captcha image from the current url.
   def retry
-    puts "r"
+    self.solved(:retry)
   end
 
+  # Submits a solution for the current url.
   def submit
-    puts "s"
+    solution = @entry.text
+    return self.retry() if solution.empty?
+    self.solved(solution)
+  end
+
+  # Sends the solution and resets the view.
+  def solved(solution)
+    @entry.text = ""
+    captcha = @captchas.delete(0)
+    captcha[:callback].call(solution)
+    self.refresh()
   end
 
   # Adds a file to the list of captchas to solve.
   # The given block will be called once the user solved the captcha.
+  # The argument will be any of the following:
+  #
+  #   the entered solution as a string
+  #   :retry if the user wants to retry with another image
+  #   :abort if the user wants to stop solving captchas for the link
   def solve(url, captcha_path, &callback)
     @captchas << {
       :file => captcha_path,
@@ -76,7 +96,17 @@ class CaptchaWindow < Gtk::Window
 
   # Displays the image file of the current captcha
   # and updates the label.
-  def refresh_image
+  # If no captchas are left, hides the window.
+  def refresh
+    captcha = @captchas.first
+    if captcha.nil?
+      self.hide
+      return
+    end
+
+    @image.set_from_file(captcha[:file])
+    @label.text = "Captcha for #{captcha[:url]} (#{@captchas.size} left)"
+    self.show_all
   end
 
 end

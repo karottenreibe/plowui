@@ -5,6 +5,9 @@ require_relative '../async.rb'
 # Allows for solving captchas.
 class Plowshare::Download < Async::Task
 
+  # Can be set to indicate the the captcha is currently being solved.
+  attr_accessor :solving
+
   # Returns true if a captcha needs to be solved.
   def needs_captcha?
     return @status == :captcha
@@ -17,7 +20,8 @@ class Plowshare::Download < Async::Task
     fifo_in = Tempfile.new
     fifo_out = Tempfile.new
 
-    bridge = Plowshare::Bridge::UI.new(fifo_in, fifo_out) do |captcha_url|
+    ui_bridge = Plowshare::Bridge::UI.new(fifo_in, fifo_out) do |captcha_url|
+      @solving = false
       self.change_status(:captcha, captcha_url)
       sleep(1) while needs_captcha?
       @result
@@ -27,7 +31,7 @@ class Plowshare::Download < Async::Task
     captcha_bridge = bridge("captcha")
 
     async_call("plowdown --skip-final --run-after '#{download_bridge}' --captchaprogram '#{captcha_bridge}' #{link}")
-    @result = bridge.start
+    @result = ui_bridge.start
   ensure
     [fifo_in, fifo_out].each do |fifo|
       if fifo

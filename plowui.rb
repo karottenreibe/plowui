@@ -34,7 +34,6 @@ class MainWindow < Gtk::Window
     end
 
     @captcha_window = CaptchaWindow.new
-    @captcha_window.show_all
 
     main_table = Gtk::Table.new(5, 1)
     self.add(main_table)
@@ -175,10 +174,16 @@ class MainWindow < Gtk::Window
   # Checks if captchas need solving.
   def check_captchas
     downloads = @download_manager.tasks.find_all do |task|
-      task.status == :captcha
+      task.status == :captcha and task.solving = false
     end
     return if downloads.empty?
-    # TODO fill and show captcha window, might already be visible!
+
+    downloads.each do |download|
+      @captcha_window.solve(download.result) do |solution|
+        download.solved_captcha(solution)
+      end
+      download.solving = true
+    end
   end
 
   # Refreshes the task table from the task managers.
