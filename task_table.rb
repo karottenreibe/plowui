@@ -5,12 +5,12 @@ class TaskTable
   attr_reader :widget
 
   def initialize()
-    @model = Gtk::ListStore.new(String, String, Async::Task)
+    @model = Gtk::ListStore.new(Async::Task, String, String)
     @widget = Gtk::TreeView.new(@model)
 
     renderer = Gtk::CellRendererText.new
     %w{Name Status}.each_with_index do |label, i|
-      column = Gtk::TreeViewColumn.new(label, renderer, :text => i)
+      column = Gtk::TreeViewColumn.new(label, renderer, :text => i + 1)
       column.expand = true
       @widget.append_column(column)
     end
@@ -22,7 +22,7 @@ class TaskTable
   def selected
     tasks = []
     @widget.selection.selected_each do |model, path, iter|
-      tasks << iter[2]
+      tasks << iter[0]
     end
     return tasks
   end
@@ -32,7 +32,7 @@ class TaskTable
     iter = @model.iter_first
     valid = !iter.nil?
     while valid
-      task = iter[2]
+      task = iter[0]
       if task.done?
         valid = @model.remove(iter)
         @tasks.delete(task)
@@ -61,9 +61,9 @@ class TaskTable
     status = task.status
     status = "#{status} (#{task.result})" if task.error?
 
-    iter[0] = task.name
-    iter[1] = status
-    iter[2] = task
+    iter[0] = task
+    iter[1] = task.name
+    iter[2] = status
   end
 
 end

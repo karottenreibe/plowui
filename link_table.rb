@@ -7,13 +7,13 @@ class LinkTable
   def initialize(download_manager)
     @download_manager = download_manager
 
-    @model = Gtk::ListStore.new(String, String, String, String, String, Entry)
+    @model = Gtk::ListStore.new(Entry, String, String, String, String, String, String)
     @widget = Gtk::TreeView.new(@model)
     @widget.selection.mode = Gtk::SELECTION_MULTIPLE
 
     renderer = Gtk::CellRendererText.new
     columns = %w{Hoster URL Name Size Status}.each_with_index.map do |label, i|
-      column = Gtk::TreeViewColumn.new(label, renderer, :text => i)
+      column = Gtk::TreeViewColumn.new(label, renderer, :text => i + 1)
       column.expand = true if [1, 4].include?(i)
       @widget.append_column(column)
       column
@@ -26,7 +26,7 @@ class LinkTable
   def selected
     entries = []
     @widget.selection.selected_each do |model, path, iter|
-      entries << iter[5]
+      entries << iter[0]
     end
     return entries
   end
@@ -39,10 +39,11 @@ class LinkTable
 
   # Sets the values of the given iter from the entry.
   def set(iter, entry)
-    [entry.hoster, entry.url, entry.name, entry.size, entry.status].each_with_index do |item, i|
-      iter[i] = item.to_s
+    iter[0] = entry
+    fields = [entry.hoster, entry.url, entry.name, entry.size, entry.status]
+    fields.each_with_index do |item, i|
+      iter[i + 1] = item.to_s
     end
-    iter[5] = entry
   end
 
   # Removes an entry from the table.
@@ -50,7 +51,7 @@ class LinkTable
     iter = @model.iter_first
     valid = !iter.nil?
     while valid
-      if entry == iter[5]
+      if entry == iter[0]
         @model.remove(iter)
         return
       end
@@ -63,7 +64,7 @@ class LinkTable
     iter = @model.iter_first
     valid = !iter.nil?
     while valid
-      if entry == iter[5] # TODO change to 0
+      if entry == iter[0]
         self.set(iter, entry)
       end
       valid = iter.next!

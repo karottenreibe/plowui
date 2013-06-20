@@ -12,6 +12,10 @@ class Async::Task
   #   :success when finished successfully
   #
   # Further values are defined by the subclass.
+  #
+  # Instead of reading this directly, it is usually
+  # better to call methods like #canceled?, #error?
+  # and #successful? to get boolean values.
   attr_reader :status
 
   # When the task is done, this contains the result.
@@ -44,6 +48,11 @@ class Async::Task
   # Returns true if the thread is finished and was successful.
   def successful?
     return @status == :success
+  end
+
+  # Returns true if the thread was aborted by the user.
+  def canceled?
+    return @status == :canceled
   end
 
   # Returns true if the thread is finished and encountered an error.
