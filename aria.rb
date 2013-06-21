@@ -34,9 +34,7 @@ class Aria
     end
 
     if cookies
-      cookies = cookies.map do |cookie|
-        "Cookie: #{cookie}"
-      end
+      cookies = "Cookie: " + cookies.join("; ")
       opts.merge!('header' => cookies)
     end
 

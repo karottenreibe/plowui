@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 require_relative 'base.rb'
 
 # Sends a captcha file name.
@@ -21,8 +23,8 @@ class Plowshare::Bridge::Captcha < Plowshare::Bridge::Base
 
 end
 
-fifo_in = ARGV[1]
-fifo_out = ARGV[2]
-image_path = ARGV[4]
+fifo_in = ARGV[0]
+fifo_out = ARGV[1]
+image_path = ARGV[3]
 Plowshare::Bridge::Captcha.new(fifo_in, fifo_out, image_path)
 

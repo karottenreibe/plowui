@@ -20,6 +20,7 @@ require_relative 'task_table.rb'
 require_relative 'captcha_window.rb'
 require_relative 'async.rb'
 require_relative 'plowshare.rb'
+require_relative 'aria.rb'
 
 Thread::abort_on_exception = true
 
@@ -34,6 +35,8 @@ class MainWindow < Gtk::Window
     end
 
     @captcha_window = CaptchaWindow.new
+    # TODO options
+    @aria = Aria.new
 
     main_table = Gtk::Table.new(5, 1)
     self.add(main_table)
@@ -152,7 +155,6 @@ class MainWindow < Gtk::Window
           @link_table.add(entry)
         end
       else
-        # TODO canceled is represented wrong!
         entry.status.error!(resolver.result)
         @link_table.update(entry)
       end
@@ -161,12 +163,17 @@ class MainWindow < Gtk::Window
 
   # Checks if downloads are finished.
   def check_downloads
-    @download_manager.done.each do |entry,download|
+    @download_manager.done.each do |entry, download|
       if attempt.error?
         entry.status.error!(attempt.result)
         @link_table.update(entry)
       else
-        @link_table.remove(entry)
+        result = @download.result
+        if @aria.add(result[:url], result[:file], result[:cookies])
+          @link_table.remove(entry)
+        else
+          @download.change_status(:error, "could not add URL to aria")
+        end
       end
     end
   end
