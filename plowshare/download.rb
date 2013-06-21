@@ -11,6 +11,9 @@ class Plowshare::Download < Async::Task
   # Can be set to indicate the the captcha is currently being solved.
   attr_accessor :solving
 
+  # The url that is being downloaded.
+  attr_accessor :url
+
   # Returns true if a captcha needs to be solved.
   def needs_captcha?
     return @status == :captcha
@@ -19,6 +22,7 @@ class Plowshare::Download < Async::Task
   # Calls plowshare to perform the download.
   def run(link)
     @name = "downloading #{link}"
+    @url = link
 
     Dir.mktmpdir('plowui_bridge') do |fifo_dir|
       @fifo_in = "#{fifo_dir}/in"

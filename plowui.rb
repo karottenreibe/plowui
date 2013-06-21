@@ -181,12 +181,12 @@ class MainWindow < Gtk::Window
   # Checks if captchas need solving.
   def check_captchas
     downloads = @download_manager.tasks.find_all do |task|
-      task.status == :captcha and task.solving = false
+      task.status == :captcha and not task.solving
     end
     return if downloads.empty?
 
     downloads.each do |download|
-      @captcha_window.solve(download.result) do |solution|
+      @captcha_window.solve(download.url, download.result) do |solution|
         download.solved_captcha(solution)
       end
       download.solving = true

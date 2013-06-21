@@ -71,7 +71,7 @@ class CaptchaWindow < Gtk::Window
   # Sends the solution and resets the view.
   def solved(solution)
     @entry.text = ""
-    captcha = @captchas.delete(0)
+    captcha = @captchas.delete_at(0)
     captcha[:callback].call(solution)
     self.refresh()
   end
@@ -104,7 +104,7 @@ class CaptchaWindow < Gtk::Window
       return
     end
 
-    @image.set_from_file(captcha[:file])
+    @image.file = captcha[:file]
     @label.text = "Captcha for #{captcha[:url]} (#{@captchas.size} left)"
     self.show_all
   end

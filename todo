@@ -1,0 +1,11 @@
+./plowui.rb:167:in `block in check_downloads': undefined local variable or method `attempt' for #<MainWindow:0x13930b8 ptr=0x21b7480>
+from ./plowui.rb:166:in `each'
+from ./plowui.rb:166:in `check_downloads'
+from ./plowui.rb:121:in `block in idle'
+from ./plowui.rb:206:in `call'
+from ./plowui.rb:206:in `main'
+from ./plowui.rb:206:in `<main>'
+
+download script sends cookie file but must wait for last sync to delete it
+
+sync sometimes fails since sender is faster than receiver
