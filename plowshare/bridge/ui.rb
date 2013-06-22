@@ -7,7 +7,7 @@ class Plowshare::Bridge::UI < Plowshare::Bridge::Base
   # Calls the given block when a captcha needs to be
   # solved.
   def initialize(dir, my_lock, other_lock, &captcha_solver)
-    super(dir, my_lock, other_lock)
+    super(dir, my_lock, other_lock, $options.debug)
     @captcha_solver = captcha_solver
     @cookie_jar = CookieJar.new
     self.lock()

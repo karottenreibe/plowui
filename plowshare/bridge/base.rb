@@ -26,19 +26,33 @@ end
 #   then becomes the writer.
 # * Noone must ever lock the other's lock or unlock
 #   their own lock.
+# * Both partners must know when a shutdown will occur.
+#   When it is time, one partner must send the shutdown
+#   signal, while the other partner must perform a read.
+#   When this read exits, it must delete the temporary
+#   directory used for communication.
 class Plowshare::Bridge::Base
 
-  def initialize(dir, my_lock, other_lock)
+  # Initializes communication over the given temporary directory,
+  # using the two lock files.
+  def initialize(dir, my_lock, other_lock, debug = false)
     @message_file = "#{dir}/message"
     @my_lock = "#{dir}/#{my_lock}"
     @other_lock = "#{dir}/#{other_lock}"
+    @debug = debug
     log("starting with dir=#{dir}")
   end
 
+  # Logs a debug message to the debug log file.
   def log(message)
-    File.open("/tmp/log", "a") do |f|
-      f.puts self.class.name.ljust(30) + " " + message
-    end
+    return unless @debug
+    $stderr.puts self.class.name.ljust(30) + " " + message
+  end
+
+  # Sends the shutdown signal that closes the connection safely.
+  # NOTE: The other end must already expect a shutdown!
+  def send_shutdown()
+    self.unlock_the_other()
   end
 
   # Sends several lines of text to the other end of the bridge.
@@ -50,7 +64,8 @@ class Plowshare::Bridge::Base
       end
     end
     log("locking myself, releasing the other")
-    self.lock_me_unlock_the_other()
+    self.lock()
+    self.unlock_the_other()
   end
 
   # Waits for my lock to be released.
@@ -58,9 +73,8 @@ class Plowshare::Bridge::Base
     sleep(0.1) while File.exist?(@my_lock)
   end
 
-  # Locks my lock, then unlocks the other lock.
-  def lock_me_unlock_the_other()
-    self.lock()
+  # Unlocks the other lock.
+  def unlock_the_other()
     File.delete(@other_lock)
   end
 

@@ -23,8 +23,21 @@ class Options
       opts.merge!(user_opts)
     end
 
+    self.deep_to_sym(opts)
+
     @debug = opts[:debug]
     @aria = opts[:aria]
+    puts opts
+  end
+
+  # Converts all keys to symbols in the given hash.
+  # Also converts nested hashes.
+  def deep_to_sym(hash)
+    hash.keys.each do |key|
+      value = hash.delete(key)
+      self.deep_to_sym(value) if value.is_a?(Hash)
+      hash[key.to_sym] = value
+    end
   end
 
 end

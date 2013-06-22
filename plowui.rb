@@ -4,9 +4,13 @@ require 'bundler'
 
 Bundler.require
 
+require_relative 'options.rb'
+$options = Options.new
+
 require 'logger'
 $log = Logger.new(STDOUT)
 $log.level = Logger::WARN
+$log.level = Logger::DEBUG if $options.debug
 $log.formatter = proc do |severity, time, program_name, message|
   "#{severity}\t#{message}\n"
 end
@@ -21,7 +25,6 @@ require_relative 'captcha_window.rb'
 require_relative 'async.rb'
 require_relative 'plowshare.rb'
 require_relative 'aria.rb'
-require_relative 'options.rb'
 
 Thread::abort_on_exception = true
 
@@ -36,11 +39,7 @@ class MainWindow < Gtk::Window
     end
 
     @captcha_window = CaptchaWindow.new
-    @options = Options.new
-    if @options.debug
-      $log.level = Logger::DEBUG
-    end
-    @aria = Aria.new(@options.aria)
+    @aria = Aria.new($options.aria)
 
     main_table = Gtk::Table.new(5, 1)
     self.add(main_table)
