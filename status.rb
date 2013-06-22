@@ -2,7 +2,7 @@
 class Status
 
   def initialize
-    @status = :"resolving..."
+    @status = :resolving
     @message = nil
     @can_continue = true
   end
@@ -32,6 +32,11 @@ class Status
   # but should still be probed by plowprobe
   def can_continue?
     @can_continue
+  end
+
+  # Returns true if the link is currently being resolved.
+  def resolving?
+    @status == :resolving
   end
 
   # Returns true if the link is definitely online.

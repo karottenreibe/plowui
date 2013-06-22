@@ -74,6 +74,14 @@ class LinkTable
     end
   end
 
+  # Removes all useless links, i.e. error and offline links.
+  def remove_useless
+    @iterator.each do |iter|
+      entry = iter[0]
+      iter.remove unless entry.status.online? or entry.status.resolving?
+    end
+  end
+
   # Updates the model values from the entry
   def update(entry)
     @iterator.each do |iter|
@@ -104,8 +112,8 @@ class LinkTable
 
     def initialize(url)
       @url = url
-      @hoster = :"resolving..."
-      @name = :"resolving..."
+      @hoster = :resolving
+      @name = :resolving
       @size = 0
       @status = Status.new
     end

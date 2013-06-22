@@ -68,6 +68,14 @@ class MainWindow < Gtk::Window
     label = Gtk::Label.new("Found Links")
     hbox.pack_start(label, false)
 
+    @download_button = Gtk::Button.new()
+    @download_button.signal_connect(:clicked) do
+      @link_table.selected.each do |entry|
+        @download_manager.add(entry, entry.url)
+      end
+    end
+    hbox.pack_end(@download_button, false)
+
     delete_button = Gtk::Button.new("\u2718")
     delete_button.set_size_request(50, -1)
     delete_button.signal_connect(:clicked) do
@@ -77,13 +85,11 @@ class MainWindow < Gtk::Window
     end
     hbox.pack_end(delete_button, false)
 
-    @download_button = Gtk::Button.new()
-    @download_button.signal_connect(:clicked) do
-      @link_table.selected.each do |entry|
-        @download_manager.add(entry, entry.url)
-      end
+    delete_useless_button = Gtk::Button.new("\u2718 useless links")
+    delete_useless_button.signal_connect(:clicked) do
+      @link_table.remove_useless
     end
-    hbox.pack_end(@download_button, false)
+    hbox.pack_end(delete_useless_button, false, true, 50)
 
     return hbox
   end
