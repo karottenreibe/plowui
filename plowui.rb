@@ -70,6 +70,7 @@ class MainWindow < Gtk::Window
     self.idle(:check_downloads)
     self.idle(:check_captchas)
     self.idle(:refresh_task_table)
+    self.idle(:update_download_button)
   end
 
   # Returns the header widget above the link table.
@@ -88,14 +89,13 @@ class MainWindow < Gtk::Window
     end
     hbox.pack_end(delete_button, false)
 
-    download_button = Gtk::Button.new("\u21A1")
-    download_button.set_size_request(50, -1)
-    download_button.signal_connect(:clicked) do
+    @download_button = Gtk::Button.new()
+    @download_button.signal_connect(:clicked) do
       @link_table.selected.each do |entry|
         @download_manager.add(entry, entry.url)
       end
     end
-    hbox.pack_end(download_button, false)
+    hbox.pack_end(@download_button, false)
 
     return hbox
   end
@@ -201,6 +201,19 @@ class MainWindow < Gtk::Window
   # Refreshes the task table from the task managers.
   def refresh_task_table
     @task_table.refresh(@download_manager, @resolver_manager)
+  end
+
+  # Updates the state of the download button based on whether aria is online.
+  def update_download_button
+    if @aria.online?
+      @download_button.label = "\u21A1"
+      @download_button.set_size_request(50, -1)
+      @download_button.sensitive = true
+    else
+      @download_button.label = "Aria2 is offline"
+      @download_button.set_size_request(-1, -1)
+      @download_button.sensitive = false
+    end
   end
 
 end

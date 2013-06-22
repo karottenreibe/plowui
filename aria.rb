@@ -20,6 +20,14 @@ class Aria
         nil, nil, opts[:user], opts[:password])
   end
 
+  # Performs a version request to test if aria is online.
+  def online?
+    @server.call("aria2.getVersion")
+    return true
+  rescue
+    return false
+  end
+
   # Adds the given link to the server and starts it.
   # Will download to the given filename. If it is nil, downloads to
   # the default filename chosen by aria2.
