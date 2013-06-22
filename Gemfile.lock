@@ -13,17 +13,17 @@ GEM
       atk (= 2.0.2)
       gdk_pixbuf2 (= 2.0.2)
       pango (= 2.0.2)
-    mkfifo (0.0.1)
     pango (2.0.2)
       cairo (>= 1.12.5)
       glib2 (= 2.0.2)
     pkg-config (1.1.4)
     simplehttp (0.1.3)
+    xdg (2.2.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   gtk2
-  mkfifo
   simplehttp
+  xdg

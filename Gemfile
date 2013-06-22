@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
 gem "simplehttp"
-gem "mkfifo"
+gem "xdg"
 gem "gtk2"
 

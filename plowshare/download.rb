@@ -2,7 +2,6 @@ require_relative 'bridge/ui.rb'
 require_relative '../async.rb'
 
 require 'tmpdir'
-require 'mkfifo'
 
 # Handles asynchronous communication with plowdown.
 # Allows for solving captchas.
