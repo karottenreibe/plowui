@@ -8,13 +8,13 @@ class CookieJar
   # an array of strings of the form name=value.
   # These can be sent as
   #
-  #   Cookie: name=value
+  #   Cookie: name=value; name2=value2
   #
   # headers by a download application.
   def parse(content)
     lines = content.split(/\n/).map(&:strip)
     cookie_lines = lines.reject do |line|
-      line.empty? or line =~ /^#\s/
+      line =~ /^\s*$/ or line =~ /^#\s/
     end
     return cookie_lines.map do |line|
       parts = line.split(/\t/)
