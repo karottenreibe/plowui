@@ -5,12 +5,9 @@ require_relative 'base.rb'
 # Sends a captcha file name.
 class Plowshare::Bridge::Captcha < Plowshare::Bridge::Base
 
-  def initialize(fifo_in, fifo_out, image_path)
-    super(fifo_in, fifo_out)
-    self.send("captcha")
-
-    self.wait_for_sync
-    self.send(image_path)
+  def initialize(dir, my_lock, other_lock, image_path)
+    super(dir, my_lock, other_lock)
+    self.send("captcha", image_path)
 
     solved_text = self.receive
 
@@ -23,8 +20,9 @@ class Plowshare::Bridge::Captcha < Plowshare::Bridge::Base
 
 end
 
-fifo_in = ARGV[0]
-fifo_out = ARGV[1]
-image_path = ARGV[3]
-Plowshare::Bridge::Captcha.new(fifo_in, fifo_out, image_path)
+dir = ARGV[0]
+my_lock = ARGV[1]
+other_lock = ARGV[2]
+image_path = ARGV[4]
+Plowshare::Bridge::Captcha.new(dir, my_lock, other_lock, image_path)
 

@@ -24,21 +24,16 @@ class Plowshare::Download < Async::Task
     @name = "downloading #{link}"
     @url = link
 
-    Dir.mktmpdir('plowui_bridge') do |fifo_dir|
-      @fifo_in = "#{fifo_dir}/in"
-      @fifo_out = "#{fifo_dir}/out"
-      File.mkfifo(@fifo_in)
-      File.mkfifo(@fifo_out)
-
-      ui_bridge = Plowshare::Bridge::UI.new(@fifo_in, @fifo_out) do |captcha_url|
+    Dir.mktmpdir('plowui_bridge') do |tmp_dir|
+      ui_bridge = Plowshare::Bridge::UI.new(tmp_dir, 'ui', 'other') do |captcha_url|
         @solving = false
         self.change_status(:captcha, captcha_url)
         sleep(1) while needs_captcha?
         @result
       end
 
-      download_bridge = self.bridge("download", fifo_dir)
-      captcha_bridge = self.bridge("captcha", fifo_dir)
+      download_bridge = self.bridge("download", tmp_dir)
+      captcha_bridge = self.bridge("captcha", tmp_dir)
 
       self.async_call("plowdown --skip-final --run-after '#{download_bridge}' --captchaprogram '#{captcha_bridge}' #{link}")
       @result = ui_bridge.start
@@ -58,7 +53,7 @@ class Plowshare::Download < Async::Task
   # the bridge with the given name.
   def bridge(name, dir)
     path = File.expand_path(File.join(File.dirname(__FILE__), "bridge", "#{name}.rb"))
-    command = %Q{#!/bin/sh\necho starting '#{@fifo_out}' '#{@fifo_in}' "$@" >> /tmp/log\n#{path} '#{@fifo_out}' '#{@fifo_in}' "$@"}
+    command = %Q{#!/bin/sh\necho starting '#{dir}' 'other' 'ui' "$@" >> /tmp/log\n#{path} '#{dir}' other ui "$@"}
     runner = "#{dir}/#{name}-bridge.sh"
     File.open(runner, "w") do |file|
       file.puts(command)

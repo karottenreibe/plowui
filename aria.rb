@@ -15,6 +15,7 @@ class Aria
       :host => "localhost"
     }
     opts = default_opts.merge(opts)
+    @address = "#{opts[:host]}:#{opts[:port]}"
     @server = XMLRPC::Client.new(opts[:host], "/rpc", opts[:port],
         nil, nil, opts[:user], opts[:password])
   end
@@ -40,8 +41,11 @@ class Aria
 
     @server.call("aria2.addUri", [link], opts)
     return true
+  rescue Errno::ECONNREFUSED => e
+    $log.error("could not connnect to aria2 at #{@address}")
+    return false
   rescue XMLRPC::FaultException => e
-    $log.error("could not contact aria2: #{e.faultString}")
+    $log.error("error while communicating with aria2: #{e.faultString}")
     return false
   end
 
