@@ -12,7 +12,7 @@ class Plowshare::Resolver < Async::Task
     @results = []
 
     self.resolve(link)
-    self.change_status(:success, @results)
+    self.change_status(:success, @results, "resolved")
   end
 
   # Tries to resolve the link.

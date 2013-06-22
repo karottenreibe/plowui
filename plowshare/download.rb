@@ -26,7 +26,7 @@ class Plowshare::Download < Async::Task
     Dir.mktmpdir('plowui_bridge') do |tmp_dir|
       ui_bridge = Plowshare::Bridge::UI.new(tmp_dir, 'ui', 'other') do |captcha_url|
         @solving = false
-        self.change_status(:captcha, captcha_url)
+        self.change_status(:captcha, captcha_url, "waiting for user input")
         sleep(1) while needs_captcha?
         @result
       end

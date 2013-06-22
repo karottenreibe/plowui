@@ -91,7 +91,7 @@ class TaskTable
   # as the number of seconds before the task is removed.
   def set(iter, task, time_left = nil)
     status = task.status
-    status = "#{status} (#{task.result})" if task.error?
+    status = "#{status} (#{task.message})" if task.message
     status = "#{status} (#{time_left}s)" if time_left
 
     iter[0] = task

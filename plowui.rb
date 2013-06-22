@@ -159,7 +159,7 @@ class MainWindow < Gtk::Window
           @link_table.add(entry)
         end
       else
-        entry.status.error!(resolver.result)
+        entry.status.error!(resolver.message)
         @link_table.update(entry)
       end
     end
@@ -168,17 +168,16 @@ class MainWindow < Gtk::Window
   # Checks if downloads are finished.
   def check_downloads
     @download_manager.done.each do |entry, download|
-      result = download.result
-
       if download.error?
-        entry.status.error!(result)
+        entry.status.error!(download.message)
         @link_table.update(entry)
       else
+        result = download.result
         if @aria.add(result[:url], result[:file], result[:cookies])
           @link_table.remove(entry)
-          download.change_status(:success)
+          download.change_status(:success, nil, "added to aria")
         else
-          download.change_status(:error, "could not add URL to aria")
+          download.change_status(:error, nil, "could not add URL to aria")
         end
       end
     end
