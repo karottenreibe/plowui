@@ -4,16 +4,7 @@ require 'bundler'
 
 Bundler.require
 
-require_relative 'options.rb'
-$options = Options.new
-
-require 'logger'
-$log = Logger.new(STDOUT)
-$log.level = Logger::WARN
-$log.level = Logger::DEBUG if $options.debug
-$log.formatter = proc do |severity, time, program_name, message|
-  "#{severity}\t#{message}\n"
-end
+require_relative 'init.rb'
 
 require_relative 'status.rb'
 require_relative 'clipboard.rb'
@@ -25,8 +16,6 @@ require_relative 'captcha_window.rb'
 require_relative 'async.rb'
 require_relative 'plowshare.rb'
 require_relative 'aria.rb'
-
-Thread::abort_on_exception = true
 
 # The main window of the application.
 class MainWindow < Gtk::Window

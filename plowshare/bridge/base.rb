@@ -31,46 +31,77 @@ end
 #   signal, while the other partner must perform a read.
 #   When this read exits, it must delete the temporary
 #   directory used for communication.
+#
+# Subclasses of an external bridge must implement #run
+# in which they must perform their communication.
+# Shutdown will behandled for them automatically.
+# To start such a bridge, the bridge classe's #external
+# method has to be called.
 class Plowshare::Bridge::Base
+
+  # Starts the bridge as an external bridge.
+  def self.external
+    require_relative '../../init.rb'
+
+    dir = ARGV.shift
+    my_lock = ARGV.shift
+    other_lock = ARGV.shift
+
+    self.new(dir, my_lock, other_lock).run(*ARGV)
+  rescue Shutdown
+    $log.debug(self.name.ljust(30) + " shutdown signal received")
+  end
 
   # Initializes communication over the given temporary directory,
   # using the two lock files.
-  def initialize(dir, my_lock, other_lock, debug = false)
+  def initialize(dir, my_lock, other_lock)
     @message_file = "#{dir}/message"
+    @shutdown_file = "#{dir}/shutdown"
     @my_lock = "#{dir}/#{my_lock}"
     @other_lock = "#{dir}/#{other_lock}"
-    @debug = debug
-    log("starting with dir=#{dir}")
+    self.log("starting with dir=#{dir}")
   end
 
-  # Logs a debug message to the debug log file.
+  # Logs a debug message prefixed with the name of the bridge.
   def log(message)
-    return unless @debug
-    $stderr.puts self.class.name.ljust(30) + " " + message
+    $log.debug(self.class.name.ljust(30) + " " + message)
+  end
+
+  # Returns true if the connection has been closed by either
+  # end. No further operations should be done. Instead, the
+  # initiating partner should now remove the temp directory.
+  def shutdown?
+    return File.exist?(@shutdown_file)
   end
 
   # Sends the shutdown signal that closes the connection safely.
-  # NOTE: The other end must already expect a shutdown!
-  def send_shutdown()
+  def shutdown
+    FileUtils.touch(@shutdown_file)
     self.unlock_the_other()
   end
 
   # Sends several lines of text to the other end of the bridge.
   def send(*messages)
-    log("sending " + messages.inspect)
+    raise Shutdown.new if self.shutdown?
+
+    self.log("sending " + messages.inspect)
     File.open(@message_file, "w") do |file|
       messages.each do |message|
         file.puts(message)
       end
     end
-    log("locking myself, releasing the other")
+
+    self.log("locking myself, releasing the other")
     self.lock()
     self.unlock_the_other()
   end
 
   # Waits for my lock to be released.
   def wait()
-    sleep(0.1) while File.exist?(@my_lock)
+    while File.exist?(@my_lock)
+      raise Shutdown.new if self.shutdown?
+      sleep(0.1)
+    end
   end
 
   # Unlocks the other lock.
@@ -87,13 +118,22 @@ class Plowshare::Bridge::Base
 
   # Receives a message from the other end of the bridge.
   def receive()
-    log("waiting to read")
+    raise Shutdown.new if self.shutdown?
+
+    self.log("waiting to read")
     self.wait()
-    log("reading")
+    raise Shutdown.new if self.shutdown?
+
+    self.log("reading")
     answer = File.read(@message_file).split(/\n/).map(&:strip)
-    log("got " + answer.inspect)
+
+    self.log("got " + answer.inspect)
     return answer
   end
+
+  # Raised when the connection was unexpectedly closed by the other
+  # end.
+  class Shutdown < RuntimeError end
 
 end
 
