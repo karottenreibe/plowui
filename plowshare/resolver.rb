@@ -47,7 +47,7 @@ class Plowshare::Resolver < Async::Task
       :hoster => :unknown,
       :status => status
     }
-    resolvable = Plowshare::Resolvable.new(@original_link, info)
+    resolvable = Plowshare::Resolvable.new(link, info)
     @results << resolvable
   end
 
