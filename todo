@@ -9,3 +9,5 @@ from ./plowui.rb:206:in `<main>'
 download script sends cookie file but must wait for last sync to delete it
 
 sync sometimes fails since sender is faster than receiver
+
+cookie jar returns ["="]
