@@ -58,6 +58,7 @@ class Status
   # Creates a new status from a plowshare status value.
   def self.from_plowshare(plowshare_status)
     status = Status.new
+    return unless plowshare_status
 
     normalized_status = plowshare_status % 100
 

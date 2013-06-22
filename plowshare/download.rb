@@ -36,7 +36,6 @@ class Plowshare::Download < Async::Task
 
       self.async_call("plowdown --skip-final --run-after '#{download_bridge}' --captchaprogram '#{captcha_bridge}' #{link}")
       @result = ui_bridge.start
-      puts @result
     end
   end
 
@@ -52,7 +51,7 @@ class Plowshare::Download < Async::Task
   # the bridge with the given name.
   def bridge(name, dir)
     path = File.expand_path(File.join(File.dirname(__FILE__), "bridge", "#{name}.rb"))
-    command = %Q{#!/bin/sh\n#{path} '#{dir}' other ui #{$options.debug} "$@"}
+    command = %Q{#!/bin/sh\n#{path} '#{dir}' other ui "$@"}
     runner = "#{dir}/#{name}-bridge.sh"
     File.open(runner, "w") do |file|
       file.puts(command)

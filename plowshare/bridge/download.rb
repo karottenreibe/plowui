@@ -10,8 +10,9 @@ class Plowshare::Bridge::Download< Plowshare::Bridge::Base
     # wait for one more message so we can be sure the other end has read
     # the cookie file
     self.receive()
-    # Tell the other end we are done
-    self.send_shutdown()
+    # acknowledge the received message so the other end can remove the temp
+    # directory
+    self.send()
     exit 0
   end
 

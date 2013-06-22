@@ -27,7 +27,6 @@ class Options
 
     @debug = opts[:debug]
     @aria = opts[:aria]
-    puts opts
   end
 
   # Converts all keys to symbols in the given hash.

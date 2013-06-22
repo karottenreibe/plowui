@@ -15,9 +15,6 @@ class Plowshare::Bridge::Captcha < Plowshare::Bridge::Base
     exit 7 if solved_text == ".retry"
 
     puts solved_text
-
-    # Tell the other end we are done
-    self.shutdown()
     exit 0
   end
 
