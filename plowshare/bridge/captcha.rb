@@ -15,6 +15,9 @@ class Plowshare::Bridge::Captcha < Plowshare::Bridge::Base
     exit 7 if solved_text == ".retry"
 
     puts solved_text
+
+    # Tell the other end we have received the message.
+    self.send()
     exit 0
   end
 

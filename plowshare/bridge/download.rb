@@ -8,6 +8,11 @@ class Plowshare::Bridge::Download< Plowshare::Bridge::Base
   def initialize(dir, my_lock, other_lock, cookie_path, download_url, file_name)
     super(dir, my_lock, other_lock)
     self.send("download", cookie_path, download_url, file_name)
+    # wait for one more message so we can be sure the other end has read
+    # the cookie file
+    self.receive()
+    # Tell the other end we have received the message.
+    self.send()
     exit 0
   end
 

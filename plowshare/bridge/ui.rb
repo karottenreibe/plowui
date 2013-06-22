@@ -34,12 +34,19 @@ class Plowshare::Bridge::UI < Plowshare::Bridge::Base
         self.send(answer)
       when "download"
         cookies = @cookie_jar.parse(message[1])
+        # Send sync message so the download bridge
+        # knows we read the cookie file
+        self.send()
         return {
           :cookies => cookies,
           :url => message[2],
           :name => message[3]
         }
       end
+
+      # Wait for the other end to receive the final message,
+      # then exit so the temp dir can be removed
+      self.receive()
     end
   end
 
