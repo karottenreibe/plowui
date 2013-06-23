@@ -24,8 +24,13 @@ class Plowshare::Resolver < Async::Task
     if links
       # if it was a folder or crypter, resolve all found links
       self.debug "folder/crypter contained #{links}. recursing"
-      links.each do |link|
-        self.resolve(link)
+      threads = links.map do |link|
+        Thread.new do
+          self.resolve(link)
+        end
+      end
+      threads.each do |thread|
+        thread.join
       end
     else
       self.debug "resolving single link #{link}"
