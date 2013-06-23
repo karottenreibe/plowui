@@ -16,13 +16,16 @@ several one click hosters.
 The file `$XDG_CONFIG_HOME/plowui.yml` is a [YAML][] file
 that is read by plowshare to determine the following options:
 
-    ```ruby
-    debug: false
-    aria:
-        host: "localhost"
-        port: 6800
-        user: "username"
-        password: "password"
-        ui: "chromium-browser /usr/share/webui-aria2/index.html"
-    ```
+```yaml
+debug: false
+aria:
+    host: "localhost"
+    port: 6800
+    user: "username"
+    password: "password"
+    ui: "chromium-browser /usr/share/webui-aria2/index.html"
+```
 
+[plowshare]: http://code.google.com/p/plowshare/
+[aria2]: http://aria2.sourceforge.net/
+[YAML]: http://www.yaml.org/
