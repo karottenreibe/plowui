@@ -1,0 +1,28 @@
+# PlowUI
+
+PlowUI is a simple fronted for [plowshare][], a set of
+bash scripts that facilitate easy downloading from
+several one click hosters.
+
+## Features
+
+*   clipboard monitoring for new links
+*   automatic resolution of link status (online/offline)
+*   automatic recursive resolution of folders
+*   support for sending links to an [aria2][] instance
+
+## Configuration
+
+The file `$XDG_CONFIG_HOME/plowui.yml` is a [YAML][] file
+that is read by plowshare to determine the following options:
+
+    ```ruby
+    debug: false
+    aria:
+        host: "localhost"
+        port: 6800
+        user: "username"
+        password: "password"
+        ui: "chromium-browser /usr/share/webui-aria2/index.html"
+    ```
+
