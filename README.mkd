@@ -15,10 +15,12 @@ several one click hosters.
 ## Installation
 
 You need:
+
 *   Ruby 1.9 or higher
 *   The bundler gem: `sudo gem install bundler`
 
 Do this:
+
 1.  Go to the plowui directory
 2.  Run `sudo bundle install` to install all dependencies
 3.  Run `./plowui.rb`
