@@ -10,6 +10,7 @@ several one click hosters.
 *   automatic resolution of link status (online/offline)
 *   automatic recursive resolution of folders
 *   support for sending links to an [aria2][] instance
+*   support for sending links to [mplayer][] for streaming
 
 ## Configuration
 
@@ -28,4 +29,5 @@ aria:
 
 [plowshare]: http://code.google.com/p/plowshare/
 [aria2]: http://aria2.sourceforge.net/
+[mplayer]: http://mplayerhq.hu/
 [YAML]: http://www.yaml.org/
