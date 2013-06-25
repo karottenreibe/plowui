@@ -12,6 +12,17 @@ several one click hosters.
 *   support for sending links to an [aria2][] instance
 *   support for sending links to [mplayer][] for streaming
 
+## Installation
+
+You need:
+*   Ruby 1.9 or higher
+*   The bundler gem: `sudo gem install bundler`
+
+Do this:
+1.  Go to the plowui directory
+2.  Run `sudo bundle install` to install all dependencies
+3.  Run `./plowui.rb`
+
 ## Configuration
 
 The file `$XDG_CONFIG_HOME/plowui.yml` is a [YAML][] file
