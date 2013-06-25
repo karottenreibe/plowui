@@ -2,7 +2,7 @@ require 'simple_http'
 require 'xmlrpc/client'
 
 # Provides access to an aria2c instance running with RPC enabled.
-class Aria
+class Receiver::Aria < Receiver::Base
 
   # Accepted options are:
   # :user => the user name for authentication with the server
@@ -10,6 +10,7 @@ class Aria
   # :port => The port to connect to
   # :host => The host to connect to
   def initialize(opts = {})
+    super("Aria2")
     default_opts = {
       :port => 6800,
       :host => "localhost"

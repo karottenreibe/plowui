@@ -15,7 +15,7 @@ require_relative 'task_table.rb'
 require_relative 'captcha_window.rb'
 require_relative 'async.rb'
 require_relative 'plowshare.rb'
-require_relative 'aria.rb'
+require_relative 'receiver.rb'
 
 # The main window of the application.
 class MainWindow < Gtk::Window
@@ -28,7 +28,7 @@ class MainWindow < Gtk::Window
     end
 
     @captcha_window = CaptchaWindow.new
-    @aria = Aria.new($options.aria)
+    @receivers = [ Receiver::Aria.new($options.aria), Receiver::MPlayer.new($options.mplayer) ]
 
     main_table = Gtk::Table.new(5, 1)
     self.add(main_table)
@@ -58,7 +58,7 @@ class MainWindow < Gtk::Window
     self.idle(:check_downloads)
     self.idle(:check_captchas)
     self.idle(:refresh_task_table)
-    self.idle(:update_download_button)
+    self.idle(:update_download_buttons)
   end
 
   # Returns the header widget above the link table.
@@ -68,13 +68,14 @@ class MainWindow < Gtk::Window
     label = Gtk::Label.new("Found Links")
     hbox.pack_start(label, false)
 
-    @download_button = Gtk::Button.new()
-    @download_button.signal_connect(:clicked) do
-      @link_table.selected.each do |entry|
-        @download_manager.add(entry, entry.url)
+    @receivers.each do |receiver|
+      receiver.button.signal_connect(:clicked) do
+        @link_table.selected.each do |entry|
+          @download_manager.add(receiver.wrap(entry), entry.url)
+        end
       end
+      hbox.pack_end(receiver.button, false)
     end
-    hbox.pack_end(@download_button, false)
 
     delete_button = Gtk::Button.new("\u2718")
     delete_button.set_size_request(50, -1)
@@ -161,13 +162,15 @@ class MainWindow < Gtk::Window
 
   # Checks if downloads are finished.
   def check_downloads
-    @download_manager.done.each do |entry, download|
+    @download_manager.done.each do |wrapper, download|
+      entry = wrapper.entry
+      receiver = wrapper.receiver
       if download.error?
         entry.status.error!(download.message)
         @link_table.update(entry)
       else
         result = download.result
-        if @aria.add(result[:url], result[:file], result[:cookies])
+        if receiver.add(result[:url], result[:file], result[:cookies])
           @link_table.remove(entry)
           download.change_status(:success, nil, "added to aria")
         else
@@ -198,15 +201,9 @@ class MainWindow < Gtk::Window
   end
 
   # Updates the state of the download button based on whether aria is online.
-  def update_download_button
-    if @aria.online?
-      @download_button.label = "\u21A1"
-      @download_button.set_size_request(50, -1)
-      @download_button.sensitive = true
-    else
-      @download_button.label = "Aria2 is offline"
-      @download_button.set_size_request(-1, -1)
-      @download_button.sensitive = false
+  def update_download_buttons
+    @receivers.each do |receiver|
+      receiver.update_button()
     end
   end
 

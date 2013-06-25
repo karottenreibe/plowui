@@ -11,10 +11,14 @@ class Options
   # See Aria#initialize for more info on that.
   attr_reader :aria
 
+  # Mplayer options.
+  attr_reader :mplayer
+
   def initialize
     opts = {
       :debug => false,
       :aria => {},
+      :mplayer => {},
     }
 
     config_file = File.join(XDG['CONFIG_HOME'].to_s, "plowui.yml")
@@ -27,6 +31,7 @@ class Options
 
     @debug = opts[:debug]
     @aria = opts[:aria]
+    @mplayer = opts[:mplayer]
   end
 
   # Converts all keys to symbols in the given hash.
