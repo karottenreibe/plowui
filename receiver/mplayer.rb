@@ -1,3 +1,5 @@
+require 'tempfile'
+
 # Displays a link using mplayer.
 class Receiver::MPlayer < Receiver::Base
 
@@ -14,10 +16,14 @@ class Receiver::MPlayer < Receiver::Base
 
   # Displays the given link using mplayer.
   def add(link, file_name = nil, cookies = nil)
-    command = "mplayer #{@options} '#{link}'"
-    $log.debug("exec `#{command}'")
     fork do
-      exec command
+      Tempfile.open('plowui-mplayer-cookies') do |file|
+        file.puts(cookies)
+
+        command = "mplayer #{@options} -cookies -cookies-file '#{file.path}' '#{link}'"
+        $log.debug("exec `#{command}'")
+        exec command
+      end
     end
   end
 

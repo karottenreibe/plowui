@@ -1,6 +1,8 @@
 require 'simple_http'
 require 'xmlrpc/client'
 
+require_relative '../cookie_jar.rb'
+
 # Provides access to an aria2c instance running with RPC enabled.
 class Receiver::Aria < Receiver::Base
 
@@ -19,6 +21,7 @@ class Receiver::Aria < Receiver::Base
     @address = "#{opts[:host]}:#{opts[:port]}"
     @server = XMLRPC::Client.new(opts[:host], "/rpc", opts[:port],
         nil, nil, opts[:user], opts[:password])
+    @cookie_jar = CookieJar.new
   end
 
   # Performs a version request to test if aria is online.
@@ -44,6 +47,7 @@ class Receiver::Aria < Receiver::Base
     end
 
     if cookies
+      cookies = @cookie_jar.to_headers(cookies)
       cookies = "Cookie: " + cookies.join("; ")
       opts.merge!('header' => cookies)
     end

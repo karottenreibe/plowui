@@ -11,7 +11,7 @@ class CookieJar
   #   Cookie: name=value; name2=value2
   #
   # headers by a download application.
-  def parse(content)
+  def to_headers(content)
     lines = content.split(/\n/).map(&:strip)
     cookie_lines = lines.reject do |line|
       line =~ /^\s*$/ or line =~ /^#\s/

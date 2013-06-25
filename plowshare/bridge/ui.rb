@@ -1,5 +1,4 @@
 require_relative 'base.rb'
-require_relative '../cookie_jar.rb'
 
 # The bridge on the UI side.
 class Plowshare::Bridge::UI < Plowshare::Bridge::Base
@@ -9,7 +8,6 @@ class Plowshare::Bridge::UI < Plowshare::Bridge::Base
   def initialize(dir, my_lock, other_lock, &captcha_solver)
     super(dir, my_lock, other_lock)
     @captcha_solver = captcha_solver
-    @cookie_jar = CookieJar.new
     self.lock()
   end
 
@@ -17,8 +15,8 @@ class Plowshare::Bridge::UI < Plowshare::Bridge::Base
   # Blocks until done.
   #
   # When finished, returns {
-  #   :cookies => the cookies to send as an array of
-  #       "name=value" strings
+  #   :cookies => the cookies to send as a Netscape
+  #       cookie jar
   #   :url => the URL to retrieve
   #   :name => the name of the file
   # }
@@ -33,7 +31,7 @@ class Plowshare::Bridge::UI < Plowshare::Bridge::Base
         answer = @captcha_solver.call(image_file)
         self.send(answer)
       when "download"
-        cookies = @cookie_jar.parse(message[1])
+        cookies = File.read(message[1])
         # Send sync message so the download bridge
         # knows we read the cookie file
         # Then wait for it to acknowledge so the
