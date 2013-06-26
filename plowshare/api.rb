@@ -62,8 +62,11 @@ class Plowshare::API
   # If links were found, returns them as an array.
   # Otherwise returns nil.
   # Also returns a status object based on the exit code of the call.
+  #
+  # First tries to do a recursive call. If that fails, tries a non-recursive one.
   def list(link)
     output, status = call("plowlist #{link} --printf '%u' -R")
+    output, status = call("plowlist #{link} --printf '%u'") if status.retry_nonrecursive?
     return nil, status unless output
 
     return output.split(/\n/), status

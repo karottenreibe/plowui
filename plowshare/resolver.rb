@@ -19,7 +19,7 @@ class Plowshare::Resolver < Async::Task
   def resolve(link)
     self.debug "starting to resolve #{link}"
     links, status = @api.list(link)
-    return self.push_error_result(link, status) unless links or status.can_continue?
+    return self.push_error_result(link, status) unless links or status.should_probe?
 
     if links
       # if it was a folder or crypter, resolve all found links

@@ -4,34 +4,37 @@ class Status
   def initialize
     @status = :resolving
     @message = nil
-    @can_continue = true
+    @should_probe = true
   end
 
   # Set it to offline.
   def offline!(reason = nil)
     @status = :offline
     @message = reason
-    @can_continue = false
+    @should_probe = false
+    @retry_nonrecursive = false
   end
 
   # Set it to online.
   def online!
     @status = :online
     @message = nil
-    @can_continue = true
+    @should_probe = true
+    @retry_nonrecursive = false
   end
 
   # Set it to error.
-  def error!(reason = nil, can_continue = false)
+  def error!(reason = nil, should_probe = false, retry_nonrecursive = false)
     @status = :error
     @message = reason
-    @can_continue = can_continue
+    @should_probe = should_probe
+    @retry_nonrecursive = retry_nonrecursive
   end
 
   # Returns true if the link was reported as bad by plowlist
   # but should still be probed by plowprobe
-  def can_continue?
-    @can_continue
+  def should_probe?
+    @should_probe
   end
 
   # Returns true if the link is currently being resolved.
@@ -52,6 +55,12 @@ class Status
   # Returns true if an error occurred during resolution.
   def error?
     return @status == :error
+  end
+
+  # Returns true if a recursive call should be retried
+  # non-recursively.
+  def retry_nonrecursive?
+    @retry_nonrecursive
   end
 
   def to_s
@@ -81,7 +90,7 @@ class Status
     when 12 then status.error!("requires authentication")
     when 13 then status.offline!
     when 14 then status.error!("file too big")
-    when 15 then status.error!("bug in plowui", true)
+    when 15 then status.error!("bug in plowui", true, true)
     else status.error!("unknown error code #{plowshare_status}")
     end
 
