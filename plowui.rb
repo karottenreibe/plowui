@@ -176,10 +176,9 @@ class MainWindow < Gtk::Window
       else
         result = download.result
         if receiver.add(result[:url], result[:file], result[:cookies])
-          @link_table.remove(entry)
-          download.change_status(:success, nil, "added to aria")
+          download.change_status(:success, nil, "added to #{receiver.name}")
         else
-          download.change_status(:error, nil, "could not add URL to aria")
+          download.change_status(:error, nil, "could not add URL to #{receiver.name}")
         end
       end
     end
