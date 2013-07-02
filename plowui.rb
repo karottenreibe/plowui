@@ -31,8 +31,8 @@ class MainWindow < Gtk::Window
     @captcha_window = CaptchaWindow.new
     @receivers = [
       Receiver::Aria.new($options.aria),
-      Receiver::MPlayer.new($options.mplayer)
-      Receiver::VLC.new($options.vlc)
+      Receiver::MPlayer.new($options.mplayer),
+      Receiver::VLC.new($options.vlc),
     ]
 
     main_table = Gtk::Table.new(5, 1)
