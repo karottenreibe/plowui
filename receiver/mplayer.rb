@@ -8,7 +8,7 @@ class Receiver::MPlayer < Receiver::Base
     @options = opts[:options]
   end
 
-  # Performs a version request to test if aria is online.
+  # Checks if mplayer is available
   def online?
     `which mplayer`
     return $?.success?

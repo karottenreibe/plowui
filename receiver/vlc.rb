@@ -8,18 +8,22 @@ class Receiver::VLC < Receiver::Base
     @options = opts[:options]
   end
 
-  # Performs a version request to test if aria is online.
+  # Checks if vlc and wget are available
   def online?
-    `which vlc`
+    `which vlc && which wget`
     return $?.success?
   end
 
   # Displays the given link using vlc.
   def add(link, file_name = nil, cookies = nil)
     fork do
-      command = "vlc #{@options} '#{link}'"
-      $log.debug("exec `#{command}'")
-      exec command
+      Tempfile.open('plowui-mplayer-cookies') do |file|
+        file.puts(cookies)
+
+        command = "wget --load-cookies '#{file.path}' | vlc #{@options} '#{link}'"
+        $log.debug("exec `#{command}'")
+        exec command
+      end
     end
   end
 
