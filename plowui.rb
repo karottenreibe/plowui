@@ -58,12 +58,20 @@ class MainWindow < Gtk::Window
     @parser = LinkParser.new
     @filter = UniquenessFilter.new
 
-    self.idle(:check_clipboard)
-    self.idle(:check_resolvers)
-    self.idle(:check_downloads)
-    self.idle(:check_captchas)
-    self.idle(:refresh_task_table)
-    self.idle(:update_download_buttons)
+    GLib::Timeout.add(500) do
+      self.perform_background_tasks
+      true
+    end
+  end
+
+  # Executed regularly by a timeout to perform background tasks
+  def perform_background_tasks
+    self.check_clipboard
+    self.check_resolvers
+    self.check_downloads
+    self.check_captchas
+    self.refresh_task_table
+    self.update_download_buttons
   end
 
   # Returns the header widget above the link table.
@@ -117,14 +125,6 @@ class MainWindow < Gtk::Window
     hbox.pack_end(cancel_button, false)
 
     return hbox
-  end
-
-  # Adds a new idle function with the given name.
-  def idle(name)
-    GLib::Timeout.add(500) do
-      self.send(name)
-      true
-    end
   end
 
   # Checks for new links in the clipboard.
