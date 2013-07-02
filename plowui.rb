@@ -121,7 +121,7 @@ class MainWindow < Gtk::Window
 
   # Adds a new idle function with the given name.
   def idle(name)
-    Gtk.idle_add do
+    GLib::Timeout.add(500) do
       self.send(name)
       true
     end
