@@ -53,6 +53,7 @@ class LinkTable
   def add(entry)
     iter = @model.append()
     self.set(iter, entry)
+    @widget.selection.unselect_all
     @widget.selection.select_iter(iter)
   end
 

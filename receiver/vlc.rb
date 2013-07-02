@@ -20,7 +20,7 @@ class Receiver::VLC < Receiver::Base
       Tempfile.open('plowui-mplayer-cookies') do |file|
         file.puts(cookies)
 
-        command = "wget --load-cookies '#{file.path}' | vlc #{@options} '#{link}'"
+        command = "wget --load-cookies '#{file.path}' -O - '#{link}' | vlc #{@options} -"
         $log.debug("exec `#{command}'")
         exec command
       end
