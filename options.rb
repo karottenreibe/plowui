@@ -14,11 +14,15 @@ class Options
   # Mplayer options.
   attr_reader :mplayer
 
+  # VLC options.
+  attr_reader :vlc
+
   def initialize
     opts = {
       :debug => false,
       :aria => {},
       :mplayer => {},
+      :vlc => {},
     }
 
     config_file = File.join(XDG['CONFIG_HOME'].to_s, "plowui.yml")
@@ -32,6 +36,7 @@ class Options
     @debug = opts[:debug]
     @aria = opts[:aria]
     @mplayer = opts[:mplayer]
+    @vlc = opts[:vlc]
   end
 
   # Converts all keys to symbols in the given hash.

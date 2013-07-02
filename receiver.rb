@@ -53,4 +53,5 @@ end
 
 require_relative './receiver/aria.rb'
 require_relative './receiver/mplayer.rb'
+require_relative './receiver/vlc.rb'
 
