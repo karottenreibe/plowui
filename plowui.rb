@@ -175,7 +175,7 @@ class MainWindow < Gtk::Window
         @link_table.update(entry)
       else
         result = download.result
-        if receiver.add(result[:url], result[:file], result[:cookies])
+        if receiver.add(result[:url], result[:name], result[:cookies])
           download.change_status(:success, nil, "added to #{receiver.name}")
         else
           download.change_status(:error, nil, "could not add URL to #{receiver.name}")
