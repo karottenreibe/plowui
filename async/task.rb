@@ -35,7 +35,14 @@ class Async::Task
     @status = :running
     @message = nil
     @thread = Thread.new do
-      self.run(*args)
+      begin
+        self.run(*args)
+      rescue => e
+        @status = :error
+        @message = "internal error"
+        trace = e.backtrace.join("\n\t")
+        $log.error "task #{@name} failed due to an exception:\n\t#{e.class}: #{e}\n\t#{trace}"
+      end
     end
   end
 
