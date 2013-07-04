@@ -36,6 +36,12 @@ module Receiver
       return wrapper
     end
 
+    # Adds the given link to the receiver.
+    def add(link, file_name = nil, cookies = nil)
+      $log.debug("adding #{link} as #{file_name} to #{@name}")
+      self.handle(link, file_name, cookies)
+    end
+
   end
 
   # Stores an entry and the receiver used to download it.

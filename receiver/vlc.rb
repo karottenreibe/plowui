@@ -15,7 +15,7 @@ class Receiver::VLC < Receiver::Base
   end
 
   # Displays the given link using vlc.
-  def add(link, file_name = nil, cookies = nil)
+  def handle(link, file_name = nil, cookies = nil)
     fork do
       Tempfile.open('plowui-mplayer-cookies') do |file|
         file.puts(cookies)

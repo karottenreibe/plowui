@@ -39,7 +39,7 @@ class Receiver::Aria < Receiver::Base
   # definitons of the form name=value and sends them to aria2.
   #
   # C.f. http://sourceforge.net/apps/phpbb/aria2/viewtopic.php?f=2&t=63
-  def add(link, file_name = nil, cookies = nil)
+  def handle(link, file_name = nil, cookies = nil)
     opts = {}
 
     if file_name
