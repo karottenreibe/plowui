@@ -28,6 +28,12 @@ class MainWindow < Gtk::Window
       Gtk.main_quit
     end
 
+    accels = Gtk::AccelGroup.new
+    accels.connect(Gdk::Keyval::GDK_Q, Gdk::Window::CONTROL_MASK, Gtk::ACCEL_VISIBLE) do
+      Gtk.main_quit
+    end
+    add_accel_group(accels)
+
     @captcha_window = CaptchaWindow.new
     @receivers = [
       Receiver::Aria.new($options.aria),
