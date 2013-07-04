@@ -36,6 +36,7 @@ class Plowshare::Download < Async::Task
 
       self.async_call("plowdown --skip-final --run-after '#{download_bridge}' --captchaprogram '#{captcha_bridge}' #{link}")
       @result = ui_bridge.start
+      @status = :success
     end
   end
 
